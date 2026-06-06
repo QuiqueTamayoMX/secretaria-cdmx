@@ -40,6 +40,30 @@
   opacity: 0.85;
 }
 
+.navbar__user {
+  font-size: 0.85rem;
+  opacity: 0.9;
+  background: rgba(255,255,255,.15);
+  padding: .2rem .7rem;
+  border-radius: 99px;
+}
+
+/* Global primary button */
+.btn-primary {
+  background: var(--color-guinda);
+  color: #fff;
+  border: none;
+  padding: .75rem 2rem;
+  border-radius: var(--radius);
+  font-family: var(--font-titulo);
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .15s;
+}
+.btn-primary:hover { background: #7a1937; }
+.btn-primary:disabled { background: #ccc; cursor: default; }
+
 /* Hero */
 .main-content {
   flex: 1;

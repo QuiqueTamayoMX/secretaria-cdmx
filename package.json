@@ -11,6 +11,8 @@
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
+    "@rolldown/binding-win32-x64-msvc": "^1.1.0",
+    "jspdf": "^4.2.1",
     "leaflet": "^1.9.4",
     "react": "^19.2.6",
     "react-dom": "^19.2.6"

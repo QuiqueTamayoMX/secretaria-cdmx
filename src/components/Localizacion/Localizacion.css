@@ -1,0 +1,310 @@
+.loc {
+  background: var(--color-surface);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,.08);
+}
+
+.loc__titulo {
+  font-size: 1.3rem;
+  color: var(--color-guinda);
+  margin-bottom: .25rem;
+}
+
+.loc__subtitulo {
+  color: var(--color-gris);
+  font-size: .9rem;
+  margin-bottom: 1.25rem;
+}
+
+/* ── Búsqueda ── */
+.loc__busqueda {
+  display: flex;
+  gap: .6rem;
+  margin-bottom: .75rem;
+  flex-wrap: wrap;
+}
+
+.loc__search-form {
+  display: flex;
+  flex: 1;
+  min-width: 200px;
+  gap: .4rem;
+}
+
+.loc__search-input {
+  flex: 1;
+  padding: .55rem .8rem;
+  border: 1.5px solid #d0d0d0;
+  border-radius: var(--radius);
+  font-family: var(--font-cuerpo);
+  font-size: .9rem;
+  outline: none;
+  transition: border-color .15s;
+}
+.loc__search-input:focus { border-color: var(--color-guinda); }
+
+.loc__btn-buscar,
+.loc__btn-gps {
+  padding: .55rem 1rem;
+  border-radius: var(--radius);
+  border: none;
+  font-family: var(--font-titulo);
+  font-size: .85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .15s;
+  white-space: nowrap;
+}
+
+.loc__btn-buscar {
+  background: var(--color-guinda);
+  color: #fff;
+}
+.loc__btn-buscar:hover { background: #7a1937; }
+.loc__btn-buscar:disabled { background: #ccc; cursor: default; }
+
+.loc__btn-gps {
+  background: #f5f5f5;
+  color: var(--color-gris);
+  border: 1.5px solid #d0d0d0;
+}
+.loc__btn-gps:hover { border-color: var(--color-guinda); color: var(--color-guinda); }
+.loc__btn-gps:disabled { opacity: .6; cursor: default; }
+
+.loc__error {
+  color: #c62828;
+  font-size: .85rem;
+  margin-bottom: .5rem;
+}
+
+/* ── Mapa ── */
+.loc__mapa-wrap {
+  position: relative;
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: .75rem;
+  border: 1px solid #e0e0e0;
+}
+
+.loc__mapa {
+  height: 320px;
+  width: 100%;
+}
+
+.loc__mapa-leyenda {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background: rgba(255,255,255,.9);
+  border-radius: 4px;
+  padding: .3rem .5rem;
+  display: flex;
+  gap: .6rem;
+  font-size: .72rem;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.loc__legend-item {
+  display: flex;
+  align-items: center;
+  gap: .3rem;
+}
+
+.loc__legend-item::before {
+  content: '';
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.loc__legend-item--user::before { background: #9d2148; }
+.loc__legend-item--comp::before { background: #ef5350; }
+.loc__legend-item--radio::before { background: rgba(157,33,72,.2); border: 1.5px dashed #9d2148; }
+
+/* Marcador del usuario (inyectado por Leaflet fuera del árbol React) */
+.loc-marker-user {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #9d2148;
+  border: 3px solid #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,.3);
+}
+
+.loc__address {
+  font-size: .85rem;
+  color: var(--color-gris);
+  margin-bottom: 1rem;
+  padding: .4rem .6rem;
+  background: #f9f9f9;
+  border-radius: var(--radius);
+  border-left: 3px solid var(--color-guinda);
+}
+
+/* ── Giro ── */
+.loc__giro-section {
+  margin-bottom: 1.25rem;
+}
+
+.loc__giro-titulo {
+  font-size: 1rem;
+  color: var(--color-gris);
+  margin-bottom: .75rem;
+}
+
+.loc__cat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: .5rem;
+  margin-bottom: .75rem;
+}
+
+.loc__cat-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .25rem;
+  padding: .6rem .4rem;
+  border: 1.5px solid #e0e0e0;
+  border-radius: var(--radius);
+  background: #fafafa;
+  font-family: var(--font-cuerpo);
+  font-size: .78rem;
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+  text-align: center;
+  line-height: 1.3;
+}
+.loc__cat-btn:hover { border-color: var(--color-guinda); background: #fdf3f6; }
+.loc__cat-btn--activo { border-color: var(--color-guinda); background: #fdf3f6; font-weight: 600; }
+
+.loc__giro-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem;
+}
+
+.loc__giro-btn {
+  padding: .4rem .9rem;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 99px;
+  background: #fafafa;
+  font-family: var(--font-cuerpo);
+  font-size: .85rem;
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+}
+.loc__giro-btn:hover { border-color: var(--color-guinda); }
+.loc__giro-btn--activo {
+  border-color: var(--color-guinda);
+  background: var(--color-guinda);
+  color: #fff;
+}
+
+.loc__sin-giros {
+  font-size: .85rem;
+  color: #999;
+  font-style: italic;
+}
+
+/* ── Métricas ── */
+.loc__metricas {
+  background: #f9f9f9;
+  border-radius: var(--radius);
+  padding: 1rem;
+  margin-bottom: 1.25rem;
+  animation: fadeInUp .3s ease-out;
+}
+
+.loc__metricas-titulo {
+  font-size: .95rem;
+  color: var(--color-gris);
+  margin-bottom: .75rem;
+}
+
+.loc__metricas-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .75rem;
+}
+
+@media (max-width: 480px) { .loc__metricas-grid { grid-template-columns: 1fr; } }
+
+.loc__metrica-card {
+  background: #fff;
+  border-radius: var(--radius);
+  padding: .85rem;
+  border: 1px solid #e8e8e8;
+}
+
+.loc__metrica-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: .4rem;
+  flex-wrap: wrap;
+  gap: .25rem;
+}
+
+.loc__metrica-label {
+  font-family: var(--font-titulo);
+  font-size: .82rem;
+  font-weight: 700;
+  color: var(--color-gris);
+}
+
+.loc__metrica-tag {
+  font-size: .7rem;
+  color: #aaa;
+  font-style: italic;
+}
+
+.loc__metrica-score {
+  font-family: var(--font-titulo);
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: .4rem;
+}
+
+.loc__metrica-de {
+  font-size: 1rem;
+  font-weight: 400;
+  opacity: .7;
+}
+
+.loc__metrica-barra-wrap {
+  height: 5px;
+  background: #e8e8e8;
+  border-radius: 99px;
+  overflow: hidden;
+  margin-bottom: .5rem;
+}
+
+.loc__metrica-barra {
+  height: 100%;
+  border-radius: 99px;
+  transition: width .5s ease;
+}
+
+.loc__metrica-desc {
+  font-size: .78rem;
+  color: #888;
+}
+
+/* ── Footer ── */
+.loc__footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .5rem;
+}
+
+.loc__hint {
+  font-size: .82rem;
+  color: #aaa;
+}
+
