@@ -1,0 +1,445 @@
+{
+  "categorias": [
+    {
+      "id": "alimentos",
+      "nombre": "Alimentos & Bebidas",
+      "descripcion": "Restaurantes, fondas, bares, cafeterías, panaderías",
+      "icono": "🍽️",
+      "giros": ["restaurante", "bar"]
+    },
+    {
+      "id": "retail",
+      "nombre": "Retail de proximidad",
+      "descripcion": "Tiendas, minisupers, farmacias, papelerías, ferreterías",
+      "icono": "🛍️",
+      "giros": ["boutique", "papeleria", "farmacia"]
+    },
+    {
+      "id": "salud",
+      "nombre": "Salud privada",
+      "descripcion": "Consultorios, clínicas, laboratorios, ópticas, rehabilitación",
+      "icono": "🏥",
+      "giros": ["consultorio", "farmacia"]
+    },
+    {
+      "id": "belleza",
+      "nombre": "Belleza & bienestar",
+      "descripcion": "Salones, barberías, spa, uñas, estéticas, gimnasios",
+      "icono": "✂️",
+      "giros": ["salon_belleza", "gym"]
+    },
+    {
+      "id": "educacion",
+      "nombre": "Educación & cuidado",
+      "descripcion": "Guarderías, escuelas, academias, tutores, cursos",
+      "icono": "📚",
+      "giros": []
+    },
+    {
+      "id": "servicios",
+      "nombre": "Servicios profesionales",
+      "descripcion": "Despachos, consultorías, contadores, abogados, oficinas",
+      "icono": "💼",
+      "giros": []
+    },
+    {
+      "id": "mascotas",
+      "nombre": "Mascotas",
+      "descripcion": "Veterinarias, pet shops, estética canina, adiestramiento",
+      "icono": "🐾",
+      "giros": []
+    },
+    {
+      "id": "entretenimiento",
+      "nombre": "Entretenimiento",
+      "descripcion": "Bares, cantinas, salones de eventos, ocio nocturno",
+      "icono": "🎭",
+      "giros": ["bar"]
+    }
+  ],
+  "giros": [
+    {
+      "id": "restaurante",
+      "nombre": "Restaurante / Fonda",
+      "scian": "722511",
+      "categoria": "alimentos",
+      "venta_alcohol": false,
+      "impacto_base": "bajo",
+      "puede_personalizar_alcohol": true,
+      "uso_suelo_compatible": ["HC", "HM", "E", "CB"],
+      "cofepris_requerido": true,
+      "proteccion_civil_requerido": true
+    },
+    {
+      "id": "boutique",
+      "nombre": "Tienda de ropa / Boutique",
+      "scian": "461110",
+      "categoria": "retail",
+      "venta_alcohol": false,
+      "impacto_base": "bajo",
+      "puede_personalizar_alcohol": false,
+      "uso_suelo_compatible": ["HC", "HM", "CB", "CU"],
+      "cofepris_requerido": false,
+      "proteccion_civil_requerido": false
+    },
+    {
+      "id": "consultorio",
+      "nombre": "Consultorio médico",
+      "scian": "621111",
+      "categoria": "salud",
+      "venta_alcohol": false,
+      "impacto_base": "bajo",
+      "puede_personalizar_alcohol": false,
+      "uso_suelo_compatible": ["HM", "E", "CB"],
+      "cofepris_requerido": true,
+      "proteccion_civil_requerido": false
+    },
+    {
+      "id": "gym",
+      "nombre": "Gimnasio / Centro deportivo",
+      "scian": "713940",
+      "categoria": "belleza",
+      "venta_alcohol": false,
+      "impacto_base": "bajo",
+      "puede_personalizar_alcohol": false,
+      "uso_suelo_compatible": ["HM", "CB", "CU"],
+      "cofepris_requerido": false,
+      "proteccion_civil_requerido": true
+    },
+    {
+      "id": "salon_belleza",
+      "nombre": "Salón de belleza / Estética",
+      "scian": "812110",
+      "categoria": "belleza",
+      "venta_alcohol": false,
+      "impacto_base": "bajo",
+      "puede_personalizar_alcohol": false,
+      "uso_suelo_compatible": ["HC", "HM", "CB", "CU"],
+      "cofepris_requerido": true,
+      "proteccion_civil_requerido": false
+    },
+    {
+      "id": "farmacia",
+      "nombre": "Farmacia",
+      "scian": "464111",
+      "categoria": "retail",
+      "venta_alcohol": false,
+      "impacto_base": "bajo",
+      "puede_personalizar_alcohol": false,
+      "uso_suelo_compatible": ["HC", "HM", "CB"],
+      "cofepris_requerido": true,
+      "proteccion_civil_requerido": false
+    },
+    {
+      "id": "papeleria",
+      "nombre": "Papelería / Artículos de oficina",
+      "scian": "461612",
+      "categoria": "retail",
+      "venta_alcohol": false,
+      "impacto_base": "bajo",
+      "puede_personalizar_alcohol": false,
+      "uso_suelo_compatible": ["HC", "HM", "CB", "CU"],
+      "cofepris_requerido": false,
+      "proteccion_civil_requerido": false
+    },
+    {
+      "id": "bar",
+      "nombre": "Bar / Cantina",
+      "scian": "722412",
+      "categoria": "alimentos",
+      "venta_alcohol": true,
+      "impacto_base": "zonal",
+      "puede_personalizar_alcohol": false,
+      "uso_suelo_compatible": ["CB", "CU"],
+      "cofepris_requerido": false,
+      "proteccion_civil_requerido": true
+    }
+  ],
+  "colonias": {
+    "polanco":     { "alcaldia": "Miguel Hidalgo",    "uso_suelo": "CB", "lat": 19.4326, "lng": -99.1923 },
+    "condesa":     { "alcaldia": "Cuauhtémoc",        "uso_suelo": "HM", "lat": 19.4128, "lng": -99.1703 },
+    "roma norte":  { "alcaldia": "Cuauhtémoc",        "uso_suelo": "HM", "lat": 19.4196, "lng": -99.1603 },
+    "roma sur":    { "alcaldia": "Cuauhtémoc",        "uso_suelo": "HM", "lat": 19.4076, "lng": -99.1590 },
+    "coyoacán":    { "alcaldia": "Coyoacán",          "uso_suelo": "HC", "lat": 19.3504, "lng": -99.1621 },
+    "santa fe":    { "alcaldia": "Álvaro Obregón",    "uso_suelo": "CU", "lat": 19.3587, "lng": -99.2601 },
+    "tepito":      { "alcaldia": "Cuauhtémoc",        "uso_suelo": "CB", "lat": 19.4449, "lng": -99.1303 },
+    "xochimilco":  { "alcaldia": "Xochimilco",        "uso_suelo": "E",  "lat": 19.2569, "lng": -99.1003 },
+    "pedregal":    { "alcaldia": "Álvaro Obregón",    "uso_suelo": "HC", "lat": 19.3266, "lng": -99.1921 },
+    "doctores":    { "alcaldia": "Cuauhtémoc",        "uso_suelo": "HM", "lat": 19.4065, "lng": -99.1503 },
+    "narvarte":    { "alcaldia": "Benito Juárez",     "uso_suelo": "HM", "lat": 19.3951, "lng": -99.1676 },
+    "del valle":   { "alcaldia": "Benito Juárez",     "uso_suelo": "HM", "lat": 19.3827, "lng": -99.1676 },
+    "florida":     { "alcaldia": "Álvaro Obregón",    "uso_suelo": "HC", "lat": 19.3693, "lng": -99.1910 },
+    "iztapalapa":  { "alcaldia": "Iztapalapa",        "uso_suelo": "HC", "lat": 19.3549, "lng": -99.0879 },
+    "tlalpan":     { "alcaldia": "Tlalpan",           "uso_suelo": "E",  "lat": 19.2983, "lng": -99.1629 }
+  },
+  "tramites": {
+    "llave_cdmx": {
+      "orden": 1,
+      "fase": 1,
+      "nombre": "Crear cuenta Llave CDMX",
+      "dependencia": "Gobierno CDMX (en línea)",
+      "tiempo_estimado": "1 día hábil",
+      "link": "https://llave.cdmx.gob.mx/",
+      "documentos": [
+        "Identificación oficial vigente (INE/pasaporte)",
+        "CURP",
+        "Correo electrónico activo"
+      ],
+      "nota": "Necesaria para acceder a todos los trámites digitales del Gobierno CDMX, incluyendo SIAPEM."
+    },
+    "constitucion": {
+      "orden": 2,
+      "fase": 1,
+      "nombre": "Constitución como persona física o moral",
+      "dependencia": "Notaría Pública / SAT / Secretaría de Economía",
+      "tiempo_estimado": "SAS: 48 hrs (digital) · SA/S. de R.L.: 1-4 semanas",
+      "link": "https://www.gob.mx/empresas",
+      "documentos": [
+        "Identificación oficial vigente",
+        "CURP y RFC provisional",
+        "Para persona moral: denominación social autorizada por Secretaría de Economía",
+        "Para persona moral: escritura constitutiva ante notario e inscripción en RPC"
+      ],
+      "nota": "Persona física: sin costo de constitución, responsabilidad ilimitada. Persona moral — 3 opciones: SA de CV (min. 2 socios, acciones libremente cedibles), S. de R.L. (min. 2 socios, capital desde $3,000, control cerrado), SAS — Sociedad por Acciones Simplificada (1 solo socio, constitución digital en 48 hrs, desde $1 de capital, sin notario). La SAS es la más rápida para emprendedores individuales."
+    },
+    "rfc": {
+      "orden": 3,
+      "fase": 1,
+      "nombre": "Alta en el RFC y trámite de e.firma",
+      "dependencia": "SAT",
+      "tiempo_estimado": "RFC: 1-3 días hábiles · e.firma: cita en módulo SAT",
+      "link": "https://www.sat.gob.mx/tramites/operacion/26269/obten-tu-rfc-con-la-nueva-aplicacion-sat-id",
+      "documentos": [
+        "CURP",
+        "Identificación oficial vigente",
+        "Comprobante de domicilio (< 3 meses)",
+        "Correo electrónico para buzón tributario"
+      ],
+      "nota": "La e.firma (antes FIEL) es necesaria para firmar contratos digitales y trámites ante SEDUVI y SIAPEM. Tramítala en el mismo módulo SAT donde hagas el RFC."
+    },
+    "uso_suelo": {
+      "orden": 4,
+      "fase": 1,
+      "nombre": "Certificado Único de Zonificación de Uso de Suelo",
+      "dependencia": "SEDUVI",
+      "tiempo_estimado": "Consulta en línea inmediata / Certificado oficial: 15 días",
+      "link": "http://ciudadmx.cdmx.gob.mx:8080/seduvi/",
+      "documentos": [
+        "Dirección exacta del local (calle, número, colonia, alcaldía)",
+        "Descripción del giro a desarrollar"
+      ],
+      "nota": "⚠️ FILTRO CRÍTICO: Si el uso de suelo NO está permitido para tu giro, detén el proceso y busca otro local. NO firmes contrato de arrendamiento antes de verificar esto. La sanción por operar sin uso de suelo compatible es de hasta ~$20,587 MXN (~175.5 UMA).",
+      "es_filtro_critico": true
+    },
+    "expediente_base": {
+      "orden": 5,
+      "fase": 1,
+      "nombre": "Integrar Expediente Base Común",
+      "dependencia": "Propia gestión",
+      "tiempo_estimado": "1-5 días hábiles",
+      "link": "https://siapem.cdmx.gob.mx/",
+      "documentos": [
+        "Identificación oficial vigente (titular o representante legal)",
+        "Para persona moral: acta constitutiva, poder notarial y constancia de RFC",
+        "Contrato de arrendamiento, comodato o escrituras del local",
+        "Comprobante de domicilio del local (< 3 meses)",
+        "Certificado o consulta de uso de suelo compatible (SEDUVI)"
+      ],
+      "nota": null
+    },
+    "siapem_aviso": {
+      "orden": 6,
+      "fase": 2,
+      "ruta": "bajo",
+      "nombre": "Aviso de Funcionamiento en SIAPEM",
+      "dependencia": "SIAPEM / Alcaldía (en línea)",
+      "tiempo_estimado": "Resolución automática — operación inmediata",
+      "link": "https://siapem.cdmx.gob.mx/",
+      "documentos": [
+        "Cuenta Llave CDMX activa",
+        "Expediente base integrado",
+        "Cuestionario de Autodiagnóstico de Protección Civil (en línea)"
+      ],
+      "nota": "✅ Trámite gratuito. La resolución es automática: al registrar el aviso puedes operar de inmediato. No requiere comparecencia presencial. Sin revalidación periódica.",
+      "es_ruta_bajo": true
+    },
+    "no_adeudo_predial": {
+      "orden": 6,
+      "fase": 2,
+      "nombre": "Constancia de No Adeudo de Predial",
+      "dependencia": "Secretaría de Administración y Finanzas",
+      "tiempo_estimado": "1-3 días hábiles",
+      "link": "https://www.cdmx.gob.mx/tramites-y-servicios/tramite/constancia-de-no-adeudo-de-predial",
+      "documentos": [
+        "Número de cuenta predial del inmueble",
+        "Identificación oficial del solicitante"
+      ],
+      "nota": "Solicítala al propietario del inmueble. Requerida obligatoriamente para Impacto Vecinal e Impacto Zonal."
+    },
+    "no_adeudo_agua": {
+      "orden": 7,
+      "fase": 2,
+      "nombre": "Constancia de No Adeudo de Agua",
+      "dependencia": "SACMEX",
+      "tiempo_estimado": "1-3 días hábiles",
+      "link": "https://www.sacmex.cdmx.gob.mx/",
+      "documentos": [
+        "Número de contrato o cuenta de agua del inmueble",
+        "Identificación oficial"
+      ],
+      "nota": null
+    },
+    "vbso": {
+      "orden": 8,
+      "fase": 2,
+      "nombre": "Visto Bueno de Seguridad y Operación (VBSO)",
+      "dependencia": "Alcaldía correspondiente",
+      "tiempo_estimado": "15-30 días hábiles",
+      "link": "https://www.cdmx.gob.mx",
+      "documentos": [
+        "Planos del local (distribución y salidas de emergencia)",
+        "Memoria descriptiva del inmueble",
+        "Constancia de capacitación en protección civil del personal",
+        "Equipo contra incendios instalado (extintores, detectores de humo)"
+      ],
+      "nota": "Requerido si el aforo del establecimiento es mayor a 50 personas."
+    },
+    "pipc": {
+      "orden": 9,
+      "fase": 2,
+      "nombre": "Programa Interno de Protección Civil (PIPC)",
+      "dependencia": "Alcaldía correspondiente",
+      "tiempo_estimado": "30-45 días hábiles",
+      "link": "https://www.cdmx.gob.mx",
+      "documentos": [
+        "Planos arquitectónicos del local",
+        "Plan de evacuación y señalética instalada",
+        "Brigadas de emergencia designadas y capacitadas",
+        "Equipo de seguridad instalado (extintores, detectores, luces de emergencia)",
+        "Personal capacitado en primeros auxilios (si aforo > 50 personas)"
+      ],
+      "nota": "Requerido si el aforo supera 100 personas O la superficie construida es mayor a 250 m²."
+    },
+    "sistema_seguridad": {
+      "orden": 9,
+      "fase": 2,
+      "ruta": "zonal",
+      "nombre": "Sistema de Seguridad con videovigilancia (SSC)",
+      "dependencia": "Secretaría de Seguridad Ciudadana (SSC)",
+      "tiempo_estimado": "Variable — aprobación previa al permiso",
+      "link": "https://www.cdmx.gob.mx",
+      "documentos": [
+        "Sistema de videovigilancia instalado con cobertura del local",
+        "Resolución de aprobación de la SSC",
+        "Plano del sistema de seguridad (cámaras, accesos)"
+      ],
+      "nota": "Exclusivo de Impacto Zonal (bares, cantinas, antros). El Sistema de Seguridad debe estar aprobado por la Secretaría de Seguridad Ciudadana antes de presentar la solicitud de permiso."
+    },
+    "siapem_permiso_vecinal": {
+      "orden": 10,
+      "fase": 2,
+      "ruta": "vecinal",
+      "nombre": "Permiso de Impacto Vecinal en SIAPEM",
+      "dependencia": "SIAPEM + Alcaldía (presencial)",
+      "tiempo_estimado": "5 días hábiles · silencio = resolución favorable",
+      "link": "https://siapem.cdmx.gob.mx/",
+      "documentos": [
+        "Expediente base completo",
+        "Constancias de No Adeudo (predial y agua)",
+        "Pago de derechos correspondiente",
+        "VBSO y/o PIPC si el aforo lo requiere"
+      ],
+      "nota": "Incluye carga digital en portal SIAPEM y entrega presencial de originales en Ventanilla Única de la Alcaldía. Si la autoridad no emite resolución en 5 días hábiles, se considera aprobado (resolución favorable por silencio). Vigencia del permiso: 3 años (revalidación cada 3 años)."
+    },
+    "siapem_permiso_zonal": {
+      "orden": 11,
+      "fase": 2,
+      "ruta": "zonal",
+      "nombre": "Permiso de Impacto Zonal en SIAPEM",
+      "dependencia": "SIAPEM + Alcaldía (presencial)",
+      "tiempo_estimado": "Variable — sin plazo fijo para la autoridad",
+      "link": "https://siapem.cdmx.gob.mx/",
+      "documentos": [
+        "Expediente base completo",
+        "Constancias de No Adeudo (predial y agua)",
+        "VBSO y/o PIPC aprobados (según aforo)",
+        "Resolución de Sistema de Seguridad (SSC)",
+        "Pago de derechos correspondiente"
+      ],
+      "nota": "⚠️ NEGATIVA FICTA: Si la autoridad no responde, el silencio equivale a NEGATIVA (no aprobación). Requiere seguimiento activo. Vigencia del permiso: 2 años (revalidación cada 2 años).",
+      "es_filtro_critico": true
+    },
+    "siapem_permiso": {
+      "orden": 10,
+      "fase": 2,
+      "nombre": "Solicitud de Permiso de Funcionamiento en SIAPEM",
+      "dependencia": "SIAPEM + Alcaldía (presencial)",
+      "tiempo_estimado": "15-30 días hábiles (sujeto a evaluación)",
+      "link": "https://siapem.cdmx.gob.mx/",
+      "documentos": [
+        "Expediente base completo",
+        "Constancias de No Adeudo (predial y agua)",
+        "VBSO y/o PIPC aprobados (según aforo)",
+        "Pago de derechos correspondiente"
+      ],
+      "nota": "Incluye carga digital en portal SIAPEM y entrega presencial de originales en Ventanilla Única de la Alcaldía."
+    },
+    "cofepris": {
+      "orden": 12,
+      "fase": 2,
+      "nombre": "Licencia Sanitaria",
+      "dependencia": "COFEPRIS / SEDESA",
+      "tiempo_estimado": "30-60 días hábiles",
+      "link": "https://www.gob.mx/cofepris",
+      "documentos": [
+        "RFC activo",
+        "Constancia de uso de suelo compatible",
+        "Plano de distribución del local",
+        "Cédula profesional del responsable sanitario (si aplica)"
+      ],
+      "nota": "Requerida para giros que manipulen alimentos, medicamentos o servicios de salud."
+    }
+  },
+  "obligaciones_continuas": [
+    {
+      "id": "placa_no_discriminacion",
+      "texto": "Placa visible de 'Establecimiento libre de discriminación' (Art. 10 LEM)",
+      "aplica": "todos"
+    },
+    {
+      "id": "poliza_seguro",
+      "texto": "Póliza de seguro de responsabilidad civil vigente y visible al público",
+      "aplica": "todos"
+    },
+    {
+      "id": "aforo_control",
+      "texto": "Control de aforo máximo — no exceder la capacidad autorizada",
+      "aplica": "todos"
+    },
+    {
+      "id": "croquis_evacuacion",
+      "texto": "Croquis de evacuación visible (obligatorio para > 80 m²)",
+      "aplica": "todos"
+    },
+    {
+      "id": "ciclopuertos",
+      "texto": "Ciclopuertos para clientes (mínimo 1 por cada 100 m² de superficie)",
+      "aplica": "todos"
+    },
+    {
+      "id": "accesibilidad",
+      "texto": "Accesibilidad para personas con discapacidad (rampas, señalización)",
+      "aplica": "todos"
+    },
+    {
+      "id": "no_menores_alcohol",
+      "texto": "Prohibido vender bebidas alcohólicas a menores de edad",
+      "aplica": "vecinal,zonal"
+    },
+    {
+      "id": "primeros_auxilios",
+      "texto": "Personal capacitado en primeros auxilios (si aforo > 50 personas)",
+      "aplica": "zonal"
+    }
+  ]
+}

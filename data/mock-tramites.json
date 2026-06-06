@@ -1,0 +1,136 @@
+{
+  "giros": [
+    {
+      "id": "restaurante",
+      "nombre": "Restaurante / Fonda",
+      "scian": "722511",
+      "uso_suelo_compatible": ["HC", "HM", "E", "CB"],
+      "tipo": "permiso",
+      "tramites": ["constitucion", "rfc", "uso_suelo", "siapem_permiso", "cofepris", "proteccion_civil"]
+    },
+    {
+      "id": "boutique",
+      "nombre": "Tienda de ropa / Boutique",
+      "scian": "461110",
+      "uso_suelo_compatible": ["HC", "HM", "CB", "CU"],
+      "tipo": "aviso",
+      "tramites": ["constitucion", "rfc", "uso_suelo", "siapem_aviso"]
+    },
+    {
+      "id": "consultorio",
+      "nombre": "Consultorio médico",
+      "scian": "621111",
+      "uso_suelo_compatible": ["HM", "E", "CB"],
+      "tipo": "permiso",
+      "tramites": ["constitucion", "rfc", "uso_suelo", "siapem_permiso", "cofepris"]
+    },
+    {
+      "id": "gym",
+      "nombre": "Gimnasio / Centro deportivo",
+      "scian": "713940",
+      "uso_suelo_compatible": ["HM", "CB", "CU"],
+      "tipo": "aviso",
+      "tramites": ["constitucion", "rfc", "uso_suelo", "siapem_aviso", "proteccion_civil"]
+    },
+    {
+      "id": "salon_belleza",
+      "nombre": "Salón de belleza / Estética",
+      "scian": "812110",
+      "uso_suelo_compatible": ["HC", "HM", "CB", "CU"],
+      "tipo": "aviso",
+      "tramites": ["constitucion", "rfc", "uso_suelo", "siapem_aviso", "cofepris"]
+    },
+    {
+      "id": "farmacia",
+      "nombre": "Farmacia",
+      "scian": "464111",
+      "uso_suelo_compatible": ["HC", "HM", "CB"],
+      "tipo": "permiso",
+      "tramites": ["constitucion", "rfc", "uso_suelo", "siapem_permiso", "cofepris"]
+    },
+    {
+      "id": "papeleria",
+      "nombre": "Papelería / Artículos de oficina",
+      "scian": "461612",
+      "uso_suelo_compatible": ["HC", "HM", "CB", "CU"],
+      "tipo": "aviso",
+      "tramites": ["constitucion", "rfc", "uso_suelo", "siapem_aviso"]
+    },
+    {
+      "id": "bar",
+      "nombre": "Bar / Cantina",
+      "scian": "722412",
+      "uso_suelo_compatible": ["CB", "CU"],
+      "tipo": "permiso",
+      "tramites": ["constitucion", "rfc", "uso_suelo", "siapem_permiso", "proteccion_civil"]
+    }
+  ],
+  "colonias": {
+    "polanco": { "alcaldia": "Miguel Hidalgo", "uso_suelo": "CB" },
+    "condesa": { "alcaldia": "Cuauhtémoc", "uso_suelo": "HM" },
+    "roma norte": { "alcaldia": "Cuauhtémoc", "uso_suelo": "HM" },
+    "roma sur": { "alcaldia": "Cuauhtémoc", "uso_suelo": "HM" },
+    "coyoacán": { "alcaldia": "Coyoacán", "uso_suelo": "HC" },
+    "santa fe": { "alcaldia": "Álvaro Obregón", "uso_suelo": "CU" },
+    "tepito": { "alcaldia": "Cuauhtémoc", "uso_suelo": "CB" },
+    "xochimilco": { "alcaldia": "Xochimilco", "uso_suelo": "E" },
+    "pedregal": { "alcaldia": "Álvaro Obregón", "uso_suelo": "HC" },
+    "doctores": { "alcaldia": "Cuauhtémoc", "uso_suelo": "HM" },
+    "narvarte": { "alcaldia": "Benito Juárez", "uso_suelo": "HM" },
+    "del valle": { "alcaldia": "Benito Juárez", "uso_suelo": "HM" },
+    "florida": { "alcaldia": "Álvaro Obregón", "uso_suelo": "HC" },
+    "iztapalapa": { "alcaldia": "Iztapalapa", "uso_suelo": "HC" },
+    "tlalpan": { "alcaldia": "Tlalpan", "uso_suelo": "E" }
+  },
+  "tramites": {
+    "constitucion": {
+      "orden": 1,
+      "nombre": "Constitución como persona física o moral",
+      "dependencia": "Notaría Pública / SAT",
+      "tiempo_estimado": "1-4 semanas",
+      "link": "https://www.sat.gob.mx"
+    },
+    "rfc": {
+      "orden": 2,
+      "nombre": "Alta en el RFC",
+      "dependencia": "SAT",
+      "tiempo_estimado": "1-3 días hábiles",
+      "link": "https://www.sat.gob.mx/tramites/operacion/26269/obten-tu-rfc-con-la-nueva-aplicacion-sat-id"
+    },
+    "uso_suelo": {
+      "orden": 3,
+      "nombre": "Verificación de uso de suelo compatible",
+      "dependencia": "SEDUVI",
+      "tiempo_estimado": "En línea inmediato (consulta) / 15 días (certificado)",
+      "link": "http://ciudadmx.cdmx.gob.mx:8080/seduvi/"
+    },
+    "siapem_aviso": {
+      "orden": 4,
+      "nombre": "Aviso de apertura en SIAPEM",
+      "dependencia": "Alcaldía correspondiente",
+      "tiempo_estimado": "1-3 días hábiles",
+      "link": "https://siapem.cdmx.gob.mx/"
+    },
+    "siapem_permiso": {
+      "orden": 4,
+      "nombre": "Permiso de funcionamiento en SIAPEM",
+      "dependencia": "Alcaldía correspondiente",
+      "tiempo_estimado": "15-30 días hábiles",
+      "link": "https://siapem.cdmx.gob.mx/"
+    },
+    "cofepris": {
+      "orden": 5,
+      "nombre": "Licencia Sanitaria",
+      "dependencia": "COFEPRIS / SEDESA",
+      "tiempo_estimado": "30-60 días hábiles",
+      "link": "https://www.gob.mx/cofepris"
+    },
+    "proteccion_civil": {
+      "orden": 6,
+      "nombre": "Visto bueno de Protección Civil",
+      "dependencia": "Alcaldía correspondiente",
+      "tiempo_estimado": "15-30 días hábiles",
+      "link": "https://www.cdmx.gob.mx"
+    }
+  }
+}

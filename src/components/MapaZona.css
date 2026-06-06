@@ -1,0 +1,50 @@
+@import 'leaflet/dist/leaflet.css';
+
+.mapa-zona {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.mapa-zona__instruccion {
+  font-size: 0.85rem;
+  color: #888;
+  text-align: center;
+}
+
+.mapa-zona__mapa {
+  height: 320px;
+  border-radius: var(--radius);
+  border: 1.5px solid #e0e0e0;
+  overflow: hidden;
+}
+
+.mapa-zona__shortcuts {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.mapa-zona__shortcuts-label {
+  font-size: 0.8rem;
+  color: #888;
+  flex-shrink: 0;
+}
+
+.shortcut-btn {
+  background: var(--color-bg);
+  border: 1.5px solid #d0d0d0;
+  border-radius: 20px;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.8rem;
+  color: var(--color-gris);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+  font-family: var(--font-cuerpo);
+}
+
+.shortcut-btn:hover {
+  border-color: var(--color-guinda);
+  color: var(--color-guinda);
+}

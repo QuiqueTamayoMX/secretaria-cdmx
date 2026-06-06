@@ -1,0 +1,429 @@
+.ruta-tramites {
+  background: var(--color-surface);
+  border-radius: var(--radius);
+  padding: 2rem;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.ruta-tramites__titulo {
+  font-size: 1.5rem;
+  color: var(--color-guinda);
+  margin-bottom: 1rem;
+}
+
+.ruta-tramites__subtitulo {
+  color: var(--color-gris);
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+}
+
+/* ── Ruta badge ── */
+.ruta-badge {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.85rem 1.1rem;
+  border-radius: var(--radius);
+  border-left: 4px solid;
+  margin-bottom: 1.25rem;
+  font-size: 0.9rem;
+}
+
+.ruta-badge--bajo {
+  background: #f0faf0;
+  border-color: #2e7d32;
+  color: #1b5e20;
+}
+
+.ruta-badge--vecinal {
+  background: #fffbf0;
+  border-color: var(--color-dorado);
+  color: #5c3d00;
+}
+
+.ruta-badge--zonal {
+  background: #fff3f3;
+  border-color: #c62828;
+  color: #5a0000;
+}
+
+/* backward compat */
+.ruta-badge--a { background: #f0faf0; border-color: #2e7d32; color: #1b5e20; }
+.ruta-badge--b { background: #fffbf0; border-color: var(--color-dorado); color: #5c4a00; }
+
+.ruta-badge strong {
+  font-family: var(--font-titulo);
+  font-size: 0.95rem;
+}
+
+/* ── Fases ── */
+.fase-bloque {
+  margin-bottom: 2rem;
+}
+
+.fase-bloque__header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.4rem;
+}
+
+.fase-bloque__etiqueta {
+  background: var(--color-guinda);
+  color: #fff;
+  font-family: var(--font-titulo);
+  font-size: 0.75rem;
+  padding: 0.2rem 0.65rem;
+  border-radius: 20px;
+  flex-shrink: 0;
+}
+
+.fase-bloque__etiqueta--bajo    { background: #2e7d32; }
+.fase-bloque__etiqueta--vecinal { background: #b28e5c; }
+.fase-bloque__etiqueta--zonal   { background: #c62828; }
+/* backward compat */
+.fase-bloque__etiqueta--a { background: #2e7d32; }
+.fase-bloque__etiqueta--b { background: #b28e5c; }
+
+.fase-bloque__titulo {
+  font-family: var(--font-titulo);
+  font-size: 1rem;
+  color: var(--color-gris);
+  margin: 0;
+}
+
+.fase-bloque__desc {
+  font-size: 0.83rem;
+  color: #999;
+  margin-bottom: 0.9rem;
+}
+
+/* ── Lista de trámites ── */
+.tramites-lista {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-bottom: 0.5rem;
+}
+
+.tramite-item {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1.5px solid #e8e8e8;
+  border-radius: var(--radius);
+  background: var(--color-bg);
+  transition: border-color 0.15s;
+}
+
+.tramite-item:hover {
+  border-color: var(--color-dorado);
+}
+
+.tramite-item--critico {
+  border-color: var(--color-guinda);
+  background: #fdf4f7;
+}
+
+.tramite-item__numero {
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  background: var(--color-guinda);
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-titulo);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.tramite-item__contenido {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+.tramite-item__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.tramite-item__nombre {
+  font-family: var(--font-titulo);
+  font-size: 0.92rem;
+  color: var(--color-gris);
+  margin: 0;
+  flex: 1;
+}
+
+.tramite-item__toggle {
+  background: none;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.75rem;
+  color: var(--color-gris);
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+
+.tramite-item__toggle:hover {
+  background: var(--color-bg);
+}
+
+.tramite-item__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.meta-chip {
+  font-size: 0.78rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.meta-chip--dependencia {
+  background: #f0e8f5;
+  color: #5c1a6e;
+}
+
+.meta-chip--tiempo {
+  background: #faf0e0;
+  color: #5c4000;
+}
+
+.tramite-item__nota {
+  font-size: 0.82rem;
+  color: var(--color-gris);
+  background: #fff9f0;
+  border-left: 3px solid var(--color-dorado);
+  padding: 0.4rem 0.65rem;
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+
+.tramite-item__nota--alerta {
+  background: #fff0f0;
+  border-left-color: var(--color-guinda);
+}
+
+.tramite-item__docs {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  background: var(--color-surface);
+  border: 1px solid #ececec;
+  border-radius: var(--radius);
+  padding: 0.65rem 0.85rem;
+}
+
+.tramite-item__doc {
+  font-size: 0.82rem;
+  color: var(--color-gris);
+  display: flex;
+  align-items: flex-start;
+  gap: 0.4rem;
+}
+
+.tramite-item__link {
+  font-size: 0.82rem;
+  color: var(--color-guinda);
+  text-decoration: none;
+  font-weight: 500;
+  align-self: flex-start;
+}
+
+.tramite-item__link:hover {
+  text-decoration: underline;
+}
+
+.disclaimer {
+  font-size: 0.8rem;
+  color: #999;
+  border-top: 1px solid #ececec;
+  padding-top: 1rem;
+  margin-top: 0.5rem;
+  font-style: italic;
+}
+
+/* ── Tabla comparativa de figuras jurídicas ── */
+.tabla-figuras {
+  background: var(--color-bg);
+  border: 1.5px solid #e8c5d0;
+  border-radius: var(--radius);
+  padding: 1rem 1.2rem;
+  margin-bottom: 1.5rem;
+}
+
+.tabla-figuras__titulo {
+  font-family: var(--font-titulo);
+  font-size: 0.9rem;
+  color: var(--color-guinda);
+  margin: 0 0 0.85rem;
+}
+
+.tabla-figuras__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.65rem;
+}
+
+.figura-card {
+  position: relative;
+  background: var(--color-surface);
+  border: 1.5px solid #e0e0e0;
+  border-radius: var(--radius);
+  padding: 0.75rem 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.figura-card--recomendada {
+  border-color: var(--color-dorado);
+  background: #fffbf5;
+}
+
+.figura-card__tag {
+  position: absolute;
+  top: -0.55rem;
+  right: 0.6rem;
+  background: var(--color-dorado);
+  color: #fff;
+  font-size: 0.68rem;
+  font-family: var(--font-titulo);
+  padding: 0.1rem 0.45rem;
+  border-radius: 10px;
+}
+
+.figura-card__nombre {
+  font-family: var(--font-titulo);
+  font-size: 1rem;
+  color: var(--color-guinda);
+}
+
+.figura-card__desc {
+  font-size: 0.75rem;
+  color: #888;
+}
+
+.figura-card__datos {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: 0.78rem;
+  color: var(--color-gris);
+  margin-top: 0.2rem;
+}
+
+.figura-card__nota {
+  font-size: 0.75rem;
+  color: #888;
+  border-top: 1px solid #ececec;
+  padding-top: 0.35rem;
+  margin: 0.2rem 0 0;
+}
+
+/* ── Obligaciones continuas ── */
+.obligaciones-continuas {
+  border: 1.5px solid #e0e0e0;
+  border-radius: var(--radius);
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+  overflow: hidden;
+}
+
+.obligaciones__toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background: var(--color-bg);
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-cuerpo);
+  font-size: 0.88rem;
+  color: var(--color-gris);
+  text-align: left;
+  transition: background 0.15s;
+}
+
+.obligaciones__toggle:hover {
+  background: #f0e8ef;
+}
+
+.obligaciones__lista {
+  list-style: none;
+  padding: 0.75rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  border-top: 1px solid #ececec;
+  background: var(--color-surface);
+  margin: 0;
+}
+
+.obligaciones__item {
+  font-size: 0.83rem;
+  color: var(--color-gris);
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+}
+
+.obligaciones__item > span:first-child {
+  color: var(--color-dorado);
+  flex-shrink: 0;
+  font-weight: 700;
+}
+
+/* ── Sanciones ── */
+.sanciones-aviso {
+  background: #fff8e1;
+  border: 1.5px solid var(--color-dorado);
+  border-radius: var(--radius);
+  padding: 0.85rem 1.1rem;
+  font-size: 0.84rem;
+  color: #4a3200;
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.sanciones-aviso strong {
+  font-family: var(--font-titulo);
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.sanciones-aviso ul {
+  margin: 0;
+  padding-left: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+/* ── Responsive ── */
+@media (max-width: 480px) {
+  .ruta-tramites { padding: 1.25rem; }
+  .tramite-item__header { flex-direction: column; }
+  .tabla-figuras__grid { grid-template-columns: 1fr; }
+}

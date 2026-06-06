@@ -1,0 +1,38 @@
+@import url('https://fonts.googleapis.com/css2?family=Cabin:wght@700&family=Roboto:wght@400;500&display=swap');
+
+:root {
+  --color-guinda:   #9d2148;
+  --color-dorado:   #b28e5c;
+  --color-gris:     #55585a;
+  --color-bg:       #F5F5F5;
+  --color-surface:  #FFFFFF;
+
+  --font-titulo: 'Cabin', sans-serif;
+  --font-cuerpo: 'Roboto', sans-serif;
+
+  --radius: 6px;
+  --gap: 1rem;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-cuerpo);
+  background-color: var(--color-bg);
+  color: var(--color-gris);
+  line-height: 1.5;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-titulo);
+  color: var(--color-gris);
+}
+
+button {
+  cursor: pointer;
+  font-family: var(--font-cuerpo);
+}
