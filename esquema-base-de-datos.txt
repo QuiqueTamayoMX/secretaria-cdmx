@@ -1,0 +1,749 @@
+================================================================================
+  SecretarIA CDMX — Esquema de base de datos
+  Hackathon SEDECO 2026
+  Motor recomendado: PostgreSQL 15+ (o Supabase, que corre sobre PostgreSQL)
+  Sintaxis compatible con MySQL 8+ excepto donde se indica
+================================================================================
+
+NOTAS GENERALES
+───────────────
+  - UUID como PK en tablas de entidades (seguro para distribución y escalado).
+  - TIMESTAMPTZ almacena fecha+hora con zona horaria. MySQL usa DATETIME(6).
+  - TEXT ilimitado en Postgres; MySQL prefiere VARCHAR(n) o TEXT.
+  - DECIMAL(p,s) para valores monetarios y geográficos.
+  - VARCHAR(x) donde el límite máximo es conocido.
+  - SMALLINT para valores en rangos pequeños (0-100, orden, conteos bajos).
+  - BOOLEAN nativo en Postgres; en MySQL usar TINYINT(1).
+
+
+════════════════════════════════════════════════════════════════════════════════
+  SECCIÓN 1 — CATÁLOGOS (datos maestros, cambian poco)
+════════════════════════════════════════════════════════════════════════════════
+
+────────────────────────────────────────────────────────────────────────────────
+TABLA: categorias_giro
+Descripción: Categorías de tipo de negocio (Alimentos, Retail, Salud, etc.)
+────────────────────────────────────────────────────────────────────────────────
+
+  id              VARCHAR(50)      PK
+                    Valores: 'alimentos', 'retail', 'salud', 'belleza',
+                             'educacion', 'servicios', 'mascotas', 'entretenimiento'
+
+  nombre          VARCHAR(100)     NOT NULL
+                    Ej.: "Alimentos & Bebidas"
+
+  descripcion     TEXT
+                    Ej.: "Restaurantes, fondas, bares, cafeterías, panaderías"
+
+  icono           VARCHAR(10)
+                    Emoji unicode, ej.: "🍽️"
+
+  orden           SMALLINT         NOT NULL  DEFAULT 0
+                    Orden de visualización en la UI (0 = primero)
+
+  activo          BOOLEAN          NOT NULL  DEFAULT TRUE
+                    Soft delete / ocultar categorías sin datos de giro
+
+
+────────────────────────────────────────────────────────────────────────────────
+TABLA: giros
+Descripción: Tipos específicos de negocio (Restaurante, Bar, Farmacia, etc.)
+────────────────────────────────────────────────────────────────────────────────
+
+  id                        VARCHAR(50)      PK
+                              Slug único, ej.: 'restaurante', 'bar', 'salon_belleza'
+
+  categoria_id              VARCHAR(50)      NOT NULL  FK → categorias_giro(id)
+
+  nombre                    VARCHAR(200)     NOT NULL
+                              Ej.: "Restaurante / Fonda"
+
+  scian                     VARCHAR(10)
+                              Código SCIAN del INEGI, ej.: "722511"
+
+  impacto_base              VARCHAR(10)      NOT NULL
+                              CHECK: 'bajo' | 'vecinal' | 'zonal'
+                              Nivel de impacto según Ley de Establecimientos Mercantiles CDMX
+
+  venta_alcohol             BOOLEAN          NOT NULL  DEFAULT FALSE
+                              Si el giro implica venta de alcohol por definición
+
+  puede_personalizar_alcohol BOOLEAN         NOT NULL  DEFAULT FALSE
+                              Si el usuario puede elegir si vende alcohol (modifica el impacto)
+
+  cofepris_requerido        BOOLEAN          NOT NULL  DEFAULT FALSE
+                              ¿Requiere Licencia Sanitaria COFEPRIS/SEDESA?
+
+  proteccion_civil_requerido BOOLEAN         NOT NULL  DEFAULT FALSE
+                              ¿Requiere VBSO o PIPC de protección civil?
+
+  activo                    BOOLEAN          NOT NULL  DEFAULT TRUE
+
+
+────────────────────────────────────────────────────────────────────────────────
+TABLA: giro_usos_suelo_compatibles
+Descripción: Relación N:M entre giros y códigos de uso de suelo permitidos
+────────────────────────────────────────────────────────────────────────────────
+
+  giro_id         VARCHAR(50)      NOT NULL  FK → giros(id)
+  uso_suelo       VARCHAR(5)       NOT NULL
+                    Valores: 'HC' | 'HM' | 'CB' | 'CU' | 'E'
+                      HC = Habitacional con Comercio
+                      HM = Habitacional Mixto
+                      CB = Centro de Barrio
+                      CU = Centro Urbano
+                      E  = Equipamiento
+
+  PRIMARY KEY (giro_id, uso_suelo)
+
+
+────────────────────────────────────────────────────────────────────────────────
+TABLA: colonias
+Descripción: Colonias/barrios de la CDMX con datos socioeconómicos y de movilidad
+────────────────────────────────────────────────────────────────────────────────
+
+  id                    SERIAL           PK   (o UUID)
+
+  nombre                VARCHAR(100)     NOT NULL  UNIQUE
+                          Ej.: 'polanco', 'condesa', 'roma norte'
+
+  alcaldia              VARCHAR(100)     NOT NULL
+                          Ej.: 'Miguel Hidalgo', 'Cuauhtémoc', 'Benito Juárez'
+
+  uso_suelo             VARCHAR(5)       NOT NULL
+                          Código SEDUVI: 'HC' | 'HM' | 'CB' | 'CU' | 'E'
+
+  lat                   DECIMAL(10,7)    NOT NULL
+                          Latitud del centroide de la colonia
+
+  lng                   DECIMAL(10,7)    NOT NULL
+                          Longitud del centroide
+
+  nse_nivel             VARCHAR(10)      NOT NULL
+                          Nivel socioeconómico AMAI 2023
+                          Valores: 'A/B' | 'B+' | 'B' | 'C+' | 'C' | 'D+' | 'D'
+
+  nse_score             SMALLINT         NOT NULL
+                          CHECK (nse_score BETWEEN 0 AND 100)
+                          Score numérico derivado del nivel NSE
+
+  nse_descripcion       TEXT
+                          Descripción textual del perfil socioeconómico
+
+  densidad_peatonal     VARCHAR(20)      NOT NULL
+                          Valores: 'muy alta' | 'alta' | 'media' | 'baja'
+
+  trafico_score         SMALLINT
+                          CHECK (trafico_score BETWEEN 0 AND 100)
+                          Índice de tráfico peatonal/vehicular
+
+  metro_cercano         VARCHAR(150)
+                          Ej.: "Polanco (Línea 7)"
+
+  distancia_metro_m     SMALLINT
+                          Distancia al metro más cercano en metros
+
+  transporte_score      SMALLINT
+                          CHECK (transporte_score BETWEEN 0 AND 100)
+                          Score de accesibilidad en transporte público
+
+  ecobici_stations      SMALLINT         DEFAULT 0
+                          Estaciones Ecobici cercanas
+
+  descripcion_zona      TEXT
+                          Descripción cualitativa de la zona para el reporte
+
+  activo                BOOLEAN          NOT NULL  DEFAULT TRUE
+
+
+────────────────────────────────────────────────────────────────────────────────
+TABLA: colonia_giro_competidores
+Descripción: Cantidad de competidores por colonia y giro (datos DENUE-INEGI)
+────────────────────────────────────────────────────────────────────────────────
+
+  colonia_id      INTEGER          NOT NULL  FK → colonias(id)
+  giro_id         VARCHAR(50)      NOT NULL  FK → giros(id)
+  count           SMALLINT         NOT NULL  DEFAULT 0
+                    Número de competidores del giro en esa colonia
+  referencia      VARCHAR(300)
+                    Descripción de referencia del dato, ej.: "Área Masaryk y Anatole France"
+  fecha_dato      DATE
+                    Fecha de captura del dato (para auditoría)
+
+  PRIMARY KEY (colonia_id, giro_id)
+
+
+────────────────────────────────────────────────────────────────────────────────
+TABLA: saturacion_umbrales
+Descripción: Umbrales de saturación por nivel (baja/media/alta/muy_alta)
+────────────────────────────────────────────────────────────────────────────────
+
+  id              VARCHAR(20)      PK
+                    Valores: 'baja' | 'media' | 'alta' | 'muy_alta'
+
+  max_competidores SMALLINT        NOT NULL
+                    Número máximo de competidores para ese nivel (umbral superior)
+
+  label           VARCHAR(50)      NOT NULL
+                    Texto a mostrar: "Baja", "Media", "Alta", "Muy alta"
+
+  score           SMALLINT         NOT NULL
+                    CHECK (score BETWEEN 0 AND 100)
+                    Score de viabilidad asociado a este nivel de saturación
+
+  color           VARCHAR(20)      NOT NULL
+                    Valores: 'verde' | 'amarillo' | 'naranja' | 'rojo'
+
+
+────────────────────────────────────────────────────────────────────────────────
+TABLA: giro_saturacion_thresholds
+Descripción: Umbrales de saturación baja/media/alta POR giro específico
+────────────────────────────────────────────────────────────────────────────────
+
+  giro_id         VARCHAR(50)      NOT NULL  FK → giros(id)
+  umbral_baja     SMALLINT         NOT NULL
+  umbral_media    SMALLINT         NOT NULL
+  umbral_alta     SMALLINT         NOT NULL
+
+  PRIMARY KEY (giro_id)
+
+
+────────────────────────────────────────────────────────────────────────────────
+TABLA: tramites
+Descripción: Catálogo de trámites de apertura requeridos según el giro e impacto
+────────────────────────────────────────────────────────────────────────────────
+
+  id                    VARCHAR(50)      PK
+                          Slug único, ej.: 'llave_cdmx', 'rfc', 'uso_suelo', 'cofepris'
+
+  nombre                VARCHAR(250)     NOT NULL
+                          Ej.: "Aviso de Funcionamiento en SIAPEM"
+
+  dependencia           VARCHAR(250)
+                          Dependencia de gobierno responsable, ej.: "SIAPEM / Alcaldía"
+
+  tiempo_estimado       VARCHAR(150)
+                          Texto libre, ej.: "5 días hábiles · silencio = resolución favorable"
+
+  fase                  SMALLINT         NOT NULL
+                          1 = Universal (todos los negocios)
+                          2 = Específico por nivel de impacto
+
+  ruta_impacto          VARCHAR(10)
+                          Null = aplica a todos dentro de la fase 2
+                          Valores: 'bajo' | 'vecinal' | 'zonal'
+
+  orden                 SMALLINT         NOT NULL  DEFAULT 0
+                          Orden de realización dentro de la fase
+
+  link                  TEXT
+                          URL del trámite en línea
+
+  nota                  TEXT
+                          Texto informativo/advertencias para el usuario
+
+  es_filtro_critico     BOOLEAN          NOT NULL  DEFAULT FALSE
+                          TRUE si este trámite puede bloquear completamente la apertura
+
+  activo                BOOLEAN          NOT NULL  DEFAULT TRUE
+
+
+────────────────────────────────────────────────────────────────────────────────
+TABLA: tramite_documentos
+Descripción: Lista de documentos requeridos por cada trámite
+────────────────────────────────────────────────────────────────────────────────
+
+  id              SERIAL           PK
+  tramite_id      VARCHAR(50)      NOT NULL  FK → tramites(id)
+  documento       VARCHAR(400)     NOT NULL
+                    Descripción del documento requerido
+  orden           SMALLINT         NOT NULL  DEFAULT 0
+
+  INDEX (tramite_id)
+
+
+────────────────────────────────────────────────────────────────────────────────
+TABLA: obligaciones_continuas
+Descripción: Obligaciones legales permanentes una vez abierto el negocio
+────────────────────────────────────────────────────────────────────────────────
+
+  id              VARCHAR(50)      PK
+                    Slug, ej.: 'placa_no_discriminacion', 'poliza_seguro'
+
+  texto           TEXT             NOT NULL
+                    Descripción de la obligación
+
+  aplica_impacto  VARCHAR(50)      NOT NULL  DEFAULT 'todos'
+                    'todos' | 'vecinal,zonal' | 'zonal'
+                    Qué niveles de impacto deben cumplirla
+
+
+════════════════════════════════════════════════════════════════════════════════
+  SECCIÓN 2 — USUARIOS Y SESIONES
+════════════════════════════════════════════════════════════════════════════════
+
+────────────────────────────────────────────────────────────────────────────────
+TABLA: usuarios
+Descripción: Datos del emprendedor registrado (actualmente dummy, futuro real)
+────────────────────────────────────────────────────────────────────────────────
+
+  id              UUID             PK  DEFAULT gen_random_uuid()
+
+  nombre          VARCHAR(200)     NOT NULL
+                    Nombre completo, ej.: "María García López"
+
+  curp            CHAR(18)         NOT NULL  UNIQUE
+                    Clave Única de Registro de Población
+                    Formato regex: ^[A-Z]{4}\d{6}[HM][A-Z]{2}[A-Z0-9]{3}\d{2}$
+                    Ej.: "GARM850101HDFRZR01"
+
+  correo          VARCHAR(254)     NOT NULL  UNIQUE
+                    Dirección de correo electrónico (RFC 5321 max 254 chars)
+
+  correo_verificado BOOLEAN        NOT NULL  DEFAULT FALSE
+                    TRUE cuando el usuario confirma su correo (flujo futuro)
+
+  tipo_persona    VARCHAR(10)
+                    Valores: 'fisica' | 'moral'
+                    Cómo planea operar (persona física o persona moral/empresa)
+
+  created_at      TIMESTAMPTZ      NOT NULL  DEFAULT NOW()
+  updated_at      TIMESTAMPTZ      NOT NULL  DEFAULT NOW()
+  deleted_at      TIMESTAMPTZ
+                    Soft delete — NULL = activo
+
+  INDEX (correo)
+  INDEX (curp)
+
+
+────────────────────────────────────────────────────────────────────────────────
+TABLA: sesiones_auth
+Descripción: Tokens de sesión para autenticación (futuro)
+────────────────────────────────────────────────────────────────────────────────
+
+  id              UUID             PK  DEFAULT gen_random_uuid()
+  usuario_id      UUID             NOT NULL  FK → usuarios(id)  ON DELETE CASCADE
+
+  token           VARCHAR(512)     NOT NULL  UNIQUE
+                    JWT o token de sesión opaco (no guardar el secret aquí)
+
+  ip_address      VARCHAR(45)
+                    IPv4 o IPv6 del dispositivo (max 45 chars para IPv6)
+
+  user_agent      TEXT
+                    Navegador/dispositivo
+
+  expires_at      TIMESTAMPTZ      NOT NULL
+  created_at      TIMESTAMPTZ      NOT NULL  DEFAULT NOW()
+  revocado        BOOLEAN          NOT NULL  DEFAULT FALSE
+
+  INDEX (token)
+  INDEX (usuario_id)
+
+
+════════════════════════════════════════════════════════════════════════════════
+  SECCIÓN 3 — NEGOCIOS Y ANÁLISIS
+════════════════════════════════════════════════════════════════════════════════
+
+────────────────────────────────────────────────────────────────────────────────
+TABLA: negocios
+Descripción: Local analizado — resultado del Paso 1 (Localización) de la app
+────────────────────────────────────────────────────────────────────────────────
+
+  id                        UUID             PK  DEFAULT gen_random_uuid()
+
+  usuario_id                UUID             FK → usuarios(id)  ON DELETE SET NULL
+                              NULL = negocio creado en sesión anónima (antes del Login)
+
+  giro_id                   VARCHAR(50)      NOT NULL  FK → giros(id)
+                              Giro de negocio seleccionado
+
+  colonia_id                INTEGER          FK → colonias(id)
+                              NULL si la ubicación no cae en ninguna colonia del catálogo
+
+  nombre                    VARCHAR(200)
+                              Etiqueta opcional del usuario, ej.: "Mi local en Roma"
+
+  lat                       DECIMAL(10,7)    NOT NULL
+                              Latitud GPS (precisión ~1.1 cm en el ecuador)
+
+  lng                       DECIMAL(10,7)    NOT NULL
+                              Longitud GPS
+
+  address                   TEXT
+                              Dirección legible obtenida de Nominatim/Google
+
+  nivel_alcohol             VARCHAR(10)
+                              Solo aplica si el giro puede_personalizar_alcohol = TRUE
+                              Valores: 'ninguno' | 'vecinal'
+
+  tipo_persona              VARCHAR(10)
+                              Valores: 'fisica' | 'moral'
+                              NULL si el usuario aún no seleccionó
+
+  impacto_calculado         VARCHAR(10)
+                              Nivel de impacto final: 'bajo' | 'vecinal' | 'zonal'
+                              Resultado de: impacto_base + nivel_alcohol + aforo
+
+  aforo_estimado            SMALLINT
+                              Capacidad estimada del local en personas
+
+  superficie_m2             SMALLINT
+                              Superficie del local en metros cuadrados (si se captura)
+
+  -- MÉTRICAS MODELO DE HUFF (1964) --
+
+  huff_cuota_mercado        DECIMAL(5,2)
+                              Cuota de mercado estimada en %, ej.: 23.50
+                              CHECK (huff_cuota_mercado BETWEEN 0 AND 100)
+
+  huff_score                SMALLINT
+                              Score normalizado 0-100
+                              CHECK (huff_score BETWEEN 0 AND 100)
+
+  huff_num_competidores     SMALLINT
+                              Número de competidores generados en el modelo
+
+  huff_interpretacion       VARCHAR(20)
+                              Valores: 'Favorable' | 'Moderada' | 'Difícil'
+
+  huff_lambda               DECIMAL(3,1)     DEFAULT 2.0
+                              Parámetro de decaimiento de distancia usado (λ)
+                              Documentar si se cambia del valor estándar Huff
+
+  -- MÉTRICAS ÍNDICE DE HANSEN (1959) --
+
+  hansen_score              SMALLINT
+                              Score normalizado 0-100
+                              CHECK (hansen_score BETWEEN 0 AND 100)
+
+  hansen_indice_raw         INTEGER
+                              Valor bruto del índice antes de normalizar, ej.: 42580
+
+  hansen_poblacion_alcanzable INTEGER
+                              Población ponderada alcanzable estimada
+
+  hansen_interpretacion     VARCHAR(30)
+                              Valores: 'Alta accesibilidad' | 'Accesibilidad media' | 'Baja accesibilidad'
+
+  hansen_beta               DECIMAL(4,3)     DEFAULT 0.080
+                              Parámetro de fricción β usado en el cálculo
+
+  -- AUDITORÍA --
+
+  fuente_ubicacion          VARCHAR(20)
+                              Cómo se obtuvo la ubicación: 'gps' | 'busqueda' | 'mapa_click'
+
+  created_at                TIMESTAMPTZ      NOT NULL  DEFAULT NOW()
+  updated_at                TIMESTAMPTZ      NOT NULL  DEFAULT NOW()
+  deleted_at                TIMESTAMPTZ
+                              Soft delete
+
+  INDEX (usuario_id)
+  INDEX (giro_id)
+  INDEX (lat, lng)    -- Búsquedas geoespaciales (o usar PostGIS POINT)
+
+
+────────────────────────────────────────────────────────────────────────────────
+TABLA: negocio_competidores_mock
+Descripción: Competidores mock generados por el Modelo de Huff para cada negocio
+             (almacenar solo si se quiere auditar o visualizar en reportes)
+────────────────────────────────────────────────────────────────────────────────
+
+  id              SERIAL           PK
+  negocio_id      UUID             NOT NULL  FK → negocios(id)  ON DELETE CASCADE
+
+  nombre          VARCHAR(100)     NOT NULL
+                    Ej.: "Restaurante 1", "Farmacia 3"
+
+  lat             DECIMAL(10,7)    NOT NULL
+  lng             DECIMAL(10,7)    NOT NULL
+
+  atractivo       DECIMAL(6,2)     NOT NULL
+                    Score de atractivo relativo (60–150 en el modelo actual)
+
+  distancia_km    DECIMAL(5,3)
+                    Distancia al negocio analizado en km
+
+  INDEX (negocio_id)
+
+
+════════════════════════════════════════════════════════════════════════════════
+  SECCIÓN 4 — COMPARADOR
+════════════════════════════════════════════════════════════════════════════════
+
+────────────────────────────────────────────────────────────────────────────────
+TABLA: comparaciones
+Descripción: Sesión de comparación — agrupa varios negocios para análisis conjunto
+────────────────────────────────────────────────────────────────────────────────
+
+  id              UUID             PK  DEFAULT gen_random_uuid()
+  usuario_id      UUID             NOT NULL  FK → usuarios(id)  ON DELETE CASCADE
+
+  nombre          VARCHAR(200)
+                    Etiqueta opcional, ej.: "Opciones en Roma y Condesa"
+
+  created_at      TIMESTAMPTZ      NOT NULL  DEFAULT NOW()
+  updated_at      TIMESTAMPTZ      NOT NULL  DEFAULT NOW()
+  deleted_at      TIMESTAMPTZ
+
+  INDEX (usuario_id)
+
+
+────────────────────────────────────────────────────────────────────────────────
+TABLA: comparacion_negocios
+Descripción: Relación N:M entre comparaciones y negocios
+────────────────────────────────────────────────────────────────────────────────
+
+  comparacion_id  UUID             NOT NULL  FK → comparaciones(id)  ON DELETE CASCADE
+  negocio_id      UUID             NOT NULL  FK → negocios(id)       ON DELETE CASCADE
+  orden           SMALLINT         NOT NULL  DEFAULT 0
+                    Posición en la tabla del comparador (0 = primero)
+
+  PRIMARY KEY (comparacion_id, negocio_id)
+  INDEX (negocio_id)
+
+
+════════════════════════════════════════════════════════════════════════════════
+  SECCIÓN 5 — CHATBOT RAG
+════════════════════════════════════════════════════════════════════════════════
+
+────────────────────────────────────────────────────────────────────────────────
+TABLA: sesiones_chat
+Descripción: Cada conversación iniciada en el Chatbot (Paso 3a)
+────────────────────────────────────────────────────────────────────────────────
+
+  id              UUID             PK  DEFAULT gen_random_uuid()
+  usuario_id      UUID             FK → usuarios(id)  ON DELETE SET NULL
+  negocio_id      UUID             FK → negocios(id)  ON DELETE SET NULL
+                    Contexto del negocio con el que se inició el chat
+
+  n8n_session_id  VARCHAR(200)
+                    ID de sesión devuelto por n8n (para correlacionar logs)
+
+  webhook_url     TEXT
+                    URL del webhook de n8n usado (útil si hay múltiples ambientes)
+
+  modo            VARCHAR(20)      NOT NULL  DEFAULT 'demo'
+                    Valores: 'demo' | 'n8n' | 'directo'
+                    'demo'    = respuestas mock locales
+                    'n8n'     = webhook n8n activo
+                    'directo' = llamada directa a LLM
+
+  created_at      TIMESTAMPTZ      NOT NULL  DEFAULT NOW()
+  cerrada_at      TIMESTAMPTZ
+                    Momento en que el usuario navegó fuera del chat
+
+  INDEX (usuario_id)
+  INDEX (negocio_id)
+
+
+────────────────────────────────────────────────────────────────────────────────
+TABLA: mensajes_chat
+Descripción: Mensajes individuales dentro de una sesión de chat
+────────────────────────────────────────────────────────────────────────────────
+
+  id              UUID             PK  DEFAULT gen_random_uuid()
+  sesion_chat_id  UUID             NOT NULL  FK → sesiones_chat(id)  ON DELETE CASCADE
+
+  rol             VARCHAR(20)      NOT NULL
+                    CHECK: 'usuario' | 'asistente' | 'sistema'
+                    'sistema' = mensajes de contexto inyectados automáticamente
+
+  texto           TEXT             NOT NULL
+                    Contenido completo del mensaje
+
+  tokens_input    SMALLINT
+                    Tokens del mensaje (útil para monitoreo de costos n8n/LLM)
+
+  tokens_output   SMALLINT
+                    Tokens de la respuesta generada (solo para rol='asistente')
+
+  latencia_ms     INTEGER
+                    Tiempo de respuesta del backend en milisegundos
+
+  created_at      TIMESTAMPTZ      NOT NULL  DEFAULT NOW()
+
+  INDEX (sesion_chat_id)
+  INDEX (sesion_chat_id, created_at)   -- Para recuperar historial en orden cronológico
+
+
+════════════════════════════════════════════════════════════════════════════════
+  SECCIÓN 6 — REPORTES Y DESCARGAS
+════════════════════════════════════════════════════════════════════════════════
+
+────────────────────────────────────────────────────────────────────────────────
+TABLA: reportes_descargados
+Descripción: Registro de PDFs generados y descargados (auditoría y analytics)
+────────────────────────────────────────────────────────────────────────────────
+
+  id                  UUID             PK  DEFAULT gen_random_uuid()
+  usuario_id          UUID             FK → usuarios(id)  ON DELETE SET NULL
+  comparacion_id      UUID             FK → comparaciones(id)  ON DELETE SET NULL
+
+  negocios_count      SMALLINT         NOT NULL
+                        Número de negocios incluidos en el reporte
+
+  negocios_ids        UUID[]
+                        Array de IDs de negocios incluidos
+                        En MySQL: JSON column con array de UUIDs
+
+  formato             VARCHAR(10)      NOT NULL  DEFAULT 'pdf'
+                        Valores: 'pdf' | 'csv' | 'xlsx' (expandible)
+
+  tamano_kb           INTEGER
+                        Tamaño aproximado del archivo generado en KB
+
+  created_at          TIMESTAMPTZ      NOT NULL  DEFAULT NOW()
+
+  INDEX (usuario_id)
+  INDEX (created_at)
+
+
+════════════════════════════════════════════════════════════════════════════════
+  SECCIÓN 7 — ANALYTICS (opcional, para iteraciones futuras)
+════════════════════════════════════════════════════════════════════════════════
+
+────────────────────────────────────────────────────────────────────────────────
+TABLA: eventos_flujo
+Descripción: Registro de cada paso completado por el usuario (embudo de conversión)
+────────────────────────────────────────────────────────────────────────────────
+
+  id              UUID             PK  DEFAULT gen_random_uuid()
+  usuario_id      UUID             FK → usuarios(id)  ON DELETE SET NULL
+  sesion_anon_id  VARCHAR(50)
+                    ID anónimo (localStorage) para usuarios sin login
+
+  evento          VARCHAR(50)      NOT NULL
+                    Valores sugeridos:
+                    'inicio_localizacion'
+                    'coords_gps'
+                    'coords_busqueda'
+                    'coords_mapa_click'
+                    'metricas_calculadas'
+                    'paso_intermedio'
+                    'login_completado'
+                    'seleccion_chatbot'
+                    'seleccion_comparador'
+                    'negocio_agregado'
+                    'negocio_eliminado'
+                    'pdf_descargado'
+
+  payload         JSONB
+                    Datos adicionales del evento (coordenadas, giro, scores, etc.)
+                    En MySQL: JSON
+
+  created_at      TIMESTAMPTZ      NOT NULL  DEFAULT NOW()
+
+  INDEX (usuario_id)
+  INDEX (evento, created_at)
+
+
+════════════════════════════════════════════════════════════════════════════════
+  RESUMEN DE RELACIONES
+════════════════════════════════════════════════════════════════════════════════
+
+  categorias_giro ──< giros ──< giro_usos_suelo_compatibles
+       │                │
+       │                └──< giro_saturacion_thresholds
+       │                │
+       │                └──< colonia_giro_competidores >── colonias
+       │
+  usuarios ──< sesiones_auth
+        │
+        ├──< negocios >── giros
+        │        │
+        │        └──< negocio_competidores_mock
+        │
+        ├──< comparaciones ──< comparacion_negocios >── negocios
+        │
+        ├──< sesiones_chat ──< mensajes_chat
+        │        └─ negocio_id → negocios
+        │
+        └──< reportes_descargados
+                  └─ comparacion_id → comparaciones
+
+  tramites ──< tramite_documentos
+  obligaciones_continuas   (catálogo independiente)
+  saturacion_umbrales      (catálogo independiente)
+  eventos_flujo            (analytics, usuario opcional)
+
+
+════════════════════════════════════════════════════════════════════════════════
+  TIPOS DE DATO — REFERENCIA RÁPIDA
+════════════════════════════════════════════════════════════════════════════════
+
+  Campo                  Tipo PostgreSQL          Tipo MySQL equivalente
+  ─────────────────────────────────────────────────────────────────────
+  id (entidades)         UUID                     CHAR(36) o BINARY(16)
+  id (catálogos)         VARCHAR(50)              VARCHAR(50)
+  id (secuencial)        SERIAL / BIGSERIAL       INT AUTO_INCREMENT
+  nombre corto           VARCHAR(100-200)         VARCHAR(100-200)
+  descripción            TEXT                     TEXT
+  coordenada lat/lng     DECIMAL(10,7)            DECIMAL(10,7)
+  porcentaje             DECIMAL(5,2)             DECIMAL(5,2)
+  score 0-100            SMALLINT                 TINYINT UNSIGNED
+  conteo bajo            SMALLINT                 SMALLINT UNSIGNED
+  timestamp con zona     TIMESTAMPTZ              DATETIME(6)
+  booleano               BOOLEAN                  TINYINT(1)
+  array de strings       TEXT[] / JSONB           JSON
+  JSON flexible          JSONB                    JSON
+  email                  VARCHAR(254)             VARCHAR(254)
+  CURP                   CHAR(18)                 CHAR(18)
+  IP address             VARCHAR(45) / INET       VARCHAR(45)
+  URL                    TEXT                     TEXT
+  moneda MXN             DECIMAL(12,2)            DECIMAL(12,2)
+  enum simple            VARCHAR(N) + CHECK       ENUM('a','b','c')
+
+
+════════════════════════════════════════════════════════════════════════════════
+  NOTAS DE IMPLEMENTACIÓN
+════════════════════════════════════════════════════════════════════════════════
+
+  1. GEOESPACIAL
+     Para búsquedas "negocios cercanos a un punto" en producción, usar:
+     - PostgreSQL: extensión PostGIS con columna GEOMETRY(POINT, 4326)
+     - MySQL 8+:   tipo POINT con índice SPATIAL
+     El DECIMAL(10,7) actual es suficiente para el demo.
+
+  2. CURP
+     Almacenar en MAYÚSCULAS (UPPER() al insertar). Indexar con UNIQUE.
+     No usar como FK directa — usar UUID interno.
+
+  3. SOFT DELETE
+     Tablas con deleted_at permiten recuperar registros borrados.
+     Filtrar siempre con WHERE deleted_at IS NULL en queries normales.
+
+  4. MÉTRICAS HUFF/HANSEN
+     Los valores son determinísticos dado (lat, lng, giro_id).
+     Almacenarlos evita recalcular en cada consulta de reporte.
+     Si los parámetros del modelo cambian (lambda, beta), los valores
+     históricos quedan con los parámetros originales documentados.
+
+  5. SUPABASE (recomendado para este proyecto)
+     - Genera automáticamente REST y GraphQL APIs.
+     - Auth integrada (maneja sesiones_auth por nosotros).
+     - Row Level Security (RLS) para que cada usuario solo vea sus datos.
+     - Realtime para el chat (alternativa a polling).
+     - Storage para guardar los PDFs generados.
+
+  6. ÍNDICES MÍNIMOS RECOMENDADOS EN PRODUCCIÓN
+     - negocios(usuario_id)
+     - negocios(lat, lng)
+     - mensajes_chat(sesion_chat_id, created_at)
+     - eventos_flujo(evento, created_at)
+     - usuarios(correo), usuarios(curp)
+
+  7. DATOS MOCK → PRODUCCIÓN
+     Los JSON en src/data/ deben migrarse a las tablas:
+     mock-tramites.json   → categorias_giro, giros, giro_usos_suelo_compatibles,
+                            colonias, tramites, tramite_documentos, obligaciones_continuas
+     viabilidad-comercial.json → colonias (campos NSE/transporte),
+                                 colonia_giro_competidores, saturacion_umbrales,
+                                 giro_saturacion_thresholds
+
+
+================================================================================
+  Fin del documento
+  Generado para SecretarIA CDMX — Hackathon SEDECO 2026
+================================================================================

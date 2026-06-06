@@ -1,158 +1,191 @@
-import { useState, useMemo } from 'react';
-import DiagnosticoForm from './components/DiagnosticoForm.jsx';
-import AnalisisComercial from './components/AnalisisComercial.jsx';
-import RutaTramites from './components/RutaTramites.jsx';
-import ResumenIA from './components/ResumenIA.jsx';
-import { calcularViabilidadComercial } from './services/analisisComercial.js';
+import { useState } from 'react';
+import Localizacion from './components/Localizacion/Localizacion.jsx';
+import StepIntermedio from './components/StepIntermedio/StepIntermedio.jsx';
+import Login from './components/Login/Login.jsx';
+import Selecciona from './components/Selecciona/Selecciona.jsx';
+import Chatbot from './components/Chatbot/Chatbot.jsx';
+import Comparador from './components/Comparador/Comparador.jsx';
 import './styles/variables.css';
 import './App.css';
 
+// Mapea el paso actual al índice del stepper (1, 2 o 3)
+function pasoAIndice(paso) {
+  if (paso === 'localizacion' || paso === 'intermedio') return 1;
+  if (paso === 'login') return 2;
+  return 3;
+}
+
+const PASOS_STEPPER = ['Localización', 'Registro', 'Selecciona'];
+
 export default function App() {
-  const [diagnostico, setDiagnostico] = useState(null);
-  const [paso, setPaso] = useState(1);
+  const [paso, setPaso]               = useState('localizacion');
+  const [usuario, setUsuario]         = useState(null);
+  const [negocioActual, setNegocioActual] = useState(null);
+  const [negocios, setNegocios]       = useState([]);
+  const [modoAgregar, setModoAgregar] = useState(false);
 
-  function handleDiagnostico(resultado) {
-    setDiagnostico(resultado);
-    setPaso(2);
-    setTimeout(() => {
-      document.getElementById('modulo-comercial')?.scrollIntoView({ behavior: 'smooth' });
-    }, 100);
+  // ── Localización completada ──
+  function handleLocalizacion(data) {
+    const neg = { id: Date.now(), ...data };
+    setNegocioActual(neg);
+
+    if (modoAgregar) {
+      setNegocios((prev) => [...prev, neg]);
+      setModoAgregar(false);
+      setPaso('comparador');
+    } else {
+      setPaso('intermedio');
+    }
   }
 
-  function handleVerTramites() {
-    setPaso(3);
-    setTimeout(() => {
-      document.getElementById('modulo-tramites')?.scrollIntoView({ behavior: 'smooth' });
-    }, 100);
+  // ── Intermedio: continuar al registro (o a Selecciona si ya hay sesión) ──
+  function handleIntermedioContinuar() {
+    setPaso(usuario ? 'selecciona' : 'login');
   }
 
-  function handleVerResumen() {
-    setPaso(4);
-    setTimeout(() => {
-      document.getElementById('modulo-resumen')?.scrollIntoView({ behavior: 'smooth' });
-    }, 100);
+  // ── Intermedio: agregar otro local (guarda el actual y vuelve al inicio) ──
+  function handleIntermedioAgregarOtro() {
+    if (negocioActual) {
+      setNegocios((prev) => [...prev, negocioActual]);
+    }
+    setNegocioActual(null);
+    setPaso('localizacion');
   }
 
-  function handleReiniciar() {
-    setDiagnostico(null);
-    setPaso(1);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  // ── Login completado ──
+  function handleLogin(userData) {
+    setUsuario(userData);
+    setPaso('selecciona');
   }
 
-  const analisisComercial = useMemo(() =>
-    diagnostico ? calcularViabilidadComercial(diagnostico.colonia, diagnostico.giro?.id) : null,
-    [diagnostico]
-  );
+  // ── Selecciona: ir al chatbot ──
+  function handleIrChatbot() {
+    if (negocioActual && !negocios.find((n) => n.id === negocioActual.id)) {
+      setNegocios((prev) => [...prev, negocioActual]);
+    }
+    setPaso('chatbot');
+  }
 
-  const PASOS = ['Diagnóstico', 'Mercado', 'Trámites', 'Resumen IA'];
+  // ── Selecciona: ir al comparador ──
+  function handleIrComparador() {
+    if (negocioActual && !negocios.find((n) => n.id === negocioActual.id)) {
+      setNegocios((prev) => [...prev, negocioActual]);
+    }
+    setPaso('comparador');
+  }
+
+  // ── Comparador: agregar nuevo local ──
+  function handleComparadorAgregar() {
+    setModoAgregar(true);
+    setNegocioActual(null);
+    setPaso('localizacion');
+  }
+
+  // ── Comparador CRUD ──
+  function handleEliminar(id) {
+    setNegocios((prev) => prev.filter((n) => n.id !== id));
+  }
+
+  function handleEditar(id, cambios) {
+    setNegocios((prev) => prev.map((n) => (n.id === id ? { ...n, ...cambios } : n)));
+  }
+
+  const stepActivo = pasoAIndice(paso);
+
+  const showNavbar  = true;
+  const showStepper = paso !== 'chatbot' && paso !== 'comparador';
+  const showFooter  = paso !== 'chatbot';
 
   return (
     <div className="app">
       <header className="navbar">
         <div className="navbar__inner">
-          <div className="navbar__logo">
-            <span className="navbar__logo-text">SecretarIA CDMX</span>
-          </div>
-          <span className="navbar__tagline">Viabilidad de negocios · SEDECO</span>
+          <span className="navbar__logo-text">SecretarIA CDMX</span>
+          {usuario && (
+            <span className="navbar__user">
+              {usuario.nombre.split(' ')[0]}
+            </span>
+          )}
+          {!usuario && <span className="navbar__tagline">Viabilidad de negocios · SEDECO</span>}
         </div>
       </header>
 
       <main className="main-content">
-        <div className="hero">
-          <h1 className="hero__titulo">¿Es viable tu negocio en la CDMX?</h1>
-          <p className="hero__subtitulo">
-            Analiza la viabilidad comercial y legal de tu giro: competidores, nivel socioeconómico,
-            uso de suelo y trámites de apertura en un solo lugar.
-          </p>
-        </div>
+        {showStepper && (
+          <div className="stepper" aria-label="Progreso">
+            {PASOS_STEPPER.map((label, i) => (
+              <div
+                key={i}
+                className={`stepper__item ${stepActivo >= i + 1 ? 'stepper__item--activo' : ''}`}
+              >
+                <div className="stepper__circulo">{i + 1}</div>
+                <span className="stepper__label">{label}</span>
+              </div>
+            ))}
+          </div>
+        )}
 
-        <div className="stepper" aria-label="Progreso">
-          {PASOS.map((label, i) => (
-            <div key={i} className={`stepper__item ${paso >= i + 1 ? 'stepper__item--activo' : ''}`}>
-              <div className="stepper__circulo">{i + 1}</div>
-              <span className="stepper__label">{label}</span>
-            </div>
-          ))}
-        </div>
+        <section className="modulo modulo--animado" key={paso}>
+          {paso === 'localizacion' && (
+            <Localizacion
+              onContinuar={handleLocalizacion}
+              negocioExistente={null}
+            />
+          )}
 
-        {/* MÓDULO 1: Diagnóstico */}
-        <section id="modulo-diagnostico" className="modulo">
-          <DiagnosticoForm onDiagnostico={handleDiagnostico} />
+          {paso === 'intermedio' && negocioActual && (
+            <StepIntermedio
+              negocio={negocioActual}
+              onContinuar={handleIntermedioContinuar}
+              onAgregarOtro={handleIntermedioAgregarOtro}
+            />
+          )}
+
+          {paso === 'login' && (
+            <Login onLogin={handleLogin} />
+          )}
+
+          {paso === 'selecciona' && (
+            <Selecciona
+              usuario={usuario}
+              negocios={negocios}
+              onChatbot={handleIrChatbot}
+              onComparador={handleIrComparador}
+            />
+          )}
+
+          {paso === 'chatbot' && (
+            <Chatbot
+              negocio={negocioActual}
+              usuario={usuario}
+              onVolver={() => setPaso('selecciona')}
+            />
+          )}
+
+          {paso === 'comparador' && (
+            <Comparador
+              negocios={negocios}
+              usuario={usuario}
+              onAgregar={handleComparadorAgregar}
+              onEliminar={handleEliminar}
+              onEditar={handleEditar}
+              onVolver={() => setPaso('selecciona')}
+            />
+          )}
         </section>
-
-        {/* MÓDULO 2: Análisis Comercial */}
-        {paso >= 2 && diagnostico && (
-          <section id="modulo-comercial" className="modulo modulo--animado">
-            <AnalisisComercial
-              giro={diagnostico.giro}
-              colonia={diagnostico.colonia}
-            />
-            {paso === 2 && (
-              <div className="modulo__accion">
-                <button className="btn-continuar" onClick={handleVerTramites}>
-                  Ver ruta de trámites →
-                </button>
-              </div>
-            )}
-          </section>
-        )}
-
-        {/* MÓDULO 3: Ruta de trámites */}
-        {paso >= 3 && diagnostico && (
-          <section id="modulo-tramites" className="modulo modulo--animado">
-            <RutaTramites
-              fase1={diagnostico.fase1}
-              fase2={diagnostico.fase2}
-              impacto={diagnostico.impacto}
-              ruta={diagnostico.ruta}
-              giro={diagnostico.giro}
-              tipoPersona={diagnostico.tipoPersona}
-              nivelAlcohol={diagnostico.nivelAlcohol}
-            />
-            {paso === 3 && (
-              <div className="modulo__accion">
-                <button className="btn-continuar" onClick={handleVerResumen}>
-                  Ver resumen con IA →
-                </button>
-              </div>
-            )}
-          </section>
-        )}
-
-        {/* MÓDULO 4: Resumen IA */}
-        {paso >= 4 && diagnostico && (
-          <section id="modulo-resumen" className="modulo modulo--animado">
-            <ResumenIA
-              giro={diagnostico.giro}
-              colonia={diagnostico.colonia}
-              tipoPersona={diagnostico.tipoPersona}
-              tramites={{ fase1: diagnostico.fase1, fase2: diagnostico.fase2 }}
-              ruta={diagnostico.ruta}
-              impacto={diagnostico.impacto}
-              analisisComercial={analisisComercial}
-            />
-            <div className="modulo__accion">
-              <button className="btn-outline" onClick={handleReiniciar}>
-                ← Nuevo diagnóstico
-              </button>
-            </div>
-          </section>
-        )}
       </main>
 
-      <footer className="footer">
-        <p>Herramienta orientativa · Hackathon SEDECO 2026 · Ciudad de México</p>
-        <p>
-          Fuentes:{' '}
-          <a href="https://siapem.cdmx.gob.mx/" target="_blank" rel="noopener noreferrer">SIAPEM</a>
-          {' · '}
-          <a href="https://www.registrodetramitesyservicios.cdmx.gob.mx/" target="_blank" rel="noopener noreferrer">RETYS</a>
-          {' · '}
-          <a href="http://ciudadmx.cdmx.gob.mx:8080/seduvi/" target="_blank" rel="noopener noreferrer">SEDUVI</a>
-          {' · '}
-          <a href="https://www.inegi.org.mx/app/mapa/denue/" target="_blank" rel="noopener noreferrer">DENUE-INEGI</a>
-        </p>
-      </footer>
+      {showFooter && (
+        <footer className="footer">
+          <p>Datos orientativos · Hackathon SEDECO 2026 · Ciudad de México</p>
+          <p>
+            Modelo de Huff (1964) ·{' '}
+            <a href="https://siapem.cdmx.gob.mx/" target="_blank" rel="noopener noreferrer">SIAPEM</a>
+            {' · '}
+            <a href="https://www.inegi.org.mx/app/mapa/denue/" target="_blank" rel="noopener noreferrer">DENUE-INEGI</a>
+          </p>
+        </footer>
+      )}
     </div>
   );
 }
