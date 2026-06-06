@@ -3,6 +3,8 @@
 
 const WEBHOOK_URL = import.meta.env.VITE_N8N_WEBHOOK_URL;
 
+export const IS_LIVE = !!WEBHOOK_URL;
+
 const MOCK_RESPONSES = [
   {
     keywords: ['trámite', 'tramite', 'permiso', 'licencia', 'apertura', 'abrir'],

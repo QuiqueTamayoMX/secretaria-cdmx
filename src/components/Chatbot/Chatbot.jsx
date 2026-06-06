@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { enviarMensaje } from '../../services/n8nService.js';
+import { enviarMensaje, IS_LIVE } from '../../services/n8nService.js';
 import './Chatbot.css';
 
 const MSG_BIENVENIDA = {
@@ -64,7 +64,7 @@ export default function Chatbot({ negocio, usuario, onVolver }) {
     }
   }
 
-  const esDemo = !import.meta.env.VITE_N8N_WEBHOOK_URL;
+  const esDemo = !IS_LIVE;
 
   return (
     <div className="chat">

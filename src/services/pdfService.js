@@ -90,7 +90,8 @@ export function generarPDFComparador(negocios, usuario) {
   doc.line(14, 285, W - 14, 285);
   doc.setFontSize(7);
   doc.setTextColor(...GRIS);
-  doc.text('SecretarIA CDMX · ivenaccip@gmail.com · Hackathon SEDECO 2026', 14, 290);
+  const footerContacto = usuario?.correo ? `SecretarIA CDMX · ${usuario.correo}` : 'SecretarIA CDMX';
+  doc.text(footerContacto, 14, 290);
 
   doc.save('reporte-comparativo-secretarIA.pdf');
 }

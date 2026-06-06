@@ -38,18 +38,22 @@ function offsetCoords(center, km, angleDeg) {
   return { lat: lat2, lng: lng2 };
 }
 
-export function calcularHuff(coords, giroId) {
-  const cfg = GIRO_CONFIG[giroId] || GIRO_CONFIG.restaurante;
-  const lambda = 2; // parámetro de distancia estándar Huff
-
-  // Generar competidores
+function generarCompetidoresMock(coords, cfg) {
   const numComp = Math.round(det(coords.lat, coords.lng, 0, cfg.minComp, cfg.maxComp));
-  const competidores = Array.from({ length: numComp }, (_, i) => {
+  return Array.from({ length: numComp }, (_, i) => {
     const dist = det(coords.lat, coords.lng, i + 1, 0.1, cfg.radioKm);
-    const ang = det(coords.lat, coords.lng, i + 100, 0, 360);
+    const ang  = det(coords.lat, coords.lng, i + 100, 0, 360);
     const atractivo = det(coords.lat, coords.lng, i + 200, 60, 150);
     return { coords: offsetCoords(coords, dist, ang), atractivo, nombre: `${cfg.nombreComp} ${i + 1}` };
   });
+}
+
+// competidoresExternos: array de { coords, nombre, atractivo } desde Places API, o null para usar mock
+export function calcularHuff(coords, giroId, competidoresExternos = null) {
+  const cfg = GIRO_CONFIG[giroId] || GIRO_CONFIG.restaurante;
+  const lambda = 2;
+
+  const competidores = competidoresExternos ?? generarCompetidoresMock(coords, cfg);
 
   // Grid de consumidores circular (≈ 48 puntos, radio 1 km)
   const radioGrid = 1.0;
@@ -73,14 +77,14 @@ export function calcularHuff(coords, giroId) {
     sumProb += utilUser / sumUtil;
   }
 
-  const cuota = sumProb / puntos.length;
+  const cuota    = sumProb / puntos.length;
   const cuotaPct = Math.round(cuota * 1000) / 10;
-  const score = Math.min(95, Math.max(5, Math.round(cuota * 100)));
+  const score    = Math.min(95, Math.max(5, Math.round(cuota * 100)));
 
   return {
     score,
     cuotaMercado: cuotaPct,
-    numCompetidores: numComp,
+    numCompetidores: competidores.length,
     competidores,
     interpretacion: score >= 60 ? 'Favorable' : score >= 35 ? 'Moderada' : 'Difícil',
     color: score >= 60 ? '#2e7d32' : score >= 35 ? '#e65100' : '#c62828',

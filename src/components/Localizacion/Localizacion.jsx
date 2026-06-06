@@ -1,25 +1,38 @@
-import { useState, useEffect, useRef } from 'react';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
-import iconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png';
-import iconUrl from 'leaflet/dist/images/marker-icon.png';
-import shadowUrl from 'leaflet/dist/images/marker-shadow.png';
+import { useState, useEffect } from 'react';
+import {
+  APIProvider,
+  Map,
+  AdvancedMarker,
+  Circle,
+  useMap,
+} from '@vis.gl/react-google-maps';
 import { geocodeDireccion, reverseGeocode } from '../../services/geocodingService.js';
 import { calcularHuff } from '../../services/huffModel.js';
+import { buscarCompetidores } from '../../services/placesService.js';
 import mockData from '../../data/mock-tramites.json';
 import './Localizacion.css';
 
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({ iconRetinaUrl, iconUrl, shadowUrl });
-
 const CDMX = { lat: 19.4326, lng: -99.1332 };
+const GOOGLE_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+const GOOGLE_MAP_ID  = import.meta.env.VITE_GOOGLE_MAPS_MAP_ID || 'DEMO_MAP_ID';
 
-const userIcon = L.divIcon({
-  className: '',
-  html: '<div class="loc-marker-user"></div>',
-  iconSize: [20, 20],
-  iconAnchor: [10, 10],
-});
+const CIRCLE_OPTIONS = {
+  strokeColor: '#9d2148',
+  strokeOpacity: 0.7,
+  strokeWeight: 1.5,
+  fillColor: '#9d2148',
+  fillOpacity: 0.06,
+};
+
+function MapController({ center }) {
+  const map = useMap();
+  useEffect(() => {
+    if (!map || !center) return;
+    map.panTo(center);
+    map.setZoom(15);
+  }, [map, center]);
+  return null;
+}
 
 export default function Localizacion({ onContinuar, negocioExistente }) {
   const [coords, setCoords]           = useState(negocioExistente?.coords || null);
@@ -33,85 +46,25 @@ export default function Localizacion({ onContinuar, negocioExistente }) {
   const [cargandoBusqueda, setCargandoBusqueda] = useState(false);
   const [error, setError]             = useState('');
 
-  const mapRef        = useRef(null);
-  const mapInst       = useRef(null);
-  const markerRef     = useRef(null);
-  const circlRef      = useRef(null);
-  const compMarkersRef = useRef([]);
-
-  // ── Inicializar mapa ──
-  useEffect(() => {
-    if (mapInst.current) return;
-    const map = L.map(mapRef.current, { zoomControl: true }).setView(
-      [CDMX.lat, CDMX.lng],
-      13
-    );
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-      maxZoom: 19,
-    }).addTo(map);
-
-    map.on('click', (e) => {
-      const { lat, lng } = e.latlng;
-      colocarMarcador(map, { lat, lng });
-      reverseGeocode(lat, lng).then(setAddress).catch(() => {});
-      setCoords({ lat, lng });
-    });
-
-    mapInst.current = map;
-    return () => { map.remove(); mapInst.current = null; };
-  }, []);
-
-  // ── Actualizar marcador cuando cambian coords ──
-  useEffect(() => {
-    if (!coords || !mapInst.current) return;
-    colocarMarcador(mapInst.current, coords);
-    mapInst.current.setView([coords.lat, coords.lng], 15, { animate: true });
-  }, [coords]);
-
-  // ── Calcular métricas cuando cambian coords o giro ──
   useEffect(() => {
     if (!coords || !giroId) return;
-    const huff = calcularHuff(coords, giroId);
-    setHuffResult(huff);
-
-    // Competidores en el mapa
-    compMarkersRef.current.forEach((m) => m.remove());
-    compMarkersRef.current = [];
-    if (mapInst.current) {
-      huff.competidores.forEach((c) => {
-        const m = L.circleMarker([c.coords.lat, c.coords.lng], {
-          radius: 7,
-          color: '#c62828',
-          fillColor: '#ef5350',
-          fillOpacity: 0.85,
-          weight: 1.5,
-        })
-          .addTo(mapInst.current)
-          .bindTooltip(c.nombre, { permanent: false });
-        compMarkersRef.current.push(m);
+    let cancelled = false;
+    buscarCompetidores(coords, giroId)
+      .then((reales) => {
+        if (!cancelled) setHuffResult(calcularHuff(coords, giroId, reales));
+      })
+      .catch(() => {
+        if (!cancelled) setHuffResult(calcularHuff(coords, giroId));
       });
-    }
+    return () => { cancelled = true; };
   }, [coords, giroId]);
 
-  function colocarMarcador(map, { lat, lng }) {
-    if (markerRef.current) {
-      markerRef.current.setLatLng([lat, lng]);
-    } else {
-      markerRef.current = L.marker([lat, lng], { icon: userIcon }).addTo(map);
-    }
-    if (circlRef.current) {
-      circlRef.current.setLatLng([lat, lng]);
-    } else {
-      circlRef.current = L.circle([lat, lng], {
-        radius: 800,
-        color: '#9d2148',
-        fillColor: '#9d2148',
-        fillOpacity: 0.06,
-        weight: 1.5,
-        dashArray: '5,5',
-      }).addTo(map);
-    }
+  function handleMapClick(e) {
+    const latLng = e.detail?.latLng;
+    if (!latLng) return;
+    const { lat, lng } = latLng;
+    setCoords({ lat, lng });
+    reverseGeocode(lat, lng).then(setAddress).catch(() => {});
   }
 
   function usarGPS() {
@@ -164,13 +117,7 @@ export default function Localizacion({ onContinuar, negocioExistente }) {
   }
 
   function handleContinuar() {
-    onContinuar({
-      coords,
-      address,
-      tipo: giroId,
-      tipoNombre,
-      huffResult,
-    });
+    onContinuar({ coords, address, tipo: giroId, tipoNombre, huffResult });
   }
 
   const listo = coords && giroId;
@@ -205,7 +152,44 @@ export default function Localizacion({ onContinuar, negocioExistente }) {
 
       {/* ── Mapa ── */}
       <div className="loc__mapa-wrap">
-        <div ref={mapRef} className="loc__mapa" />
+        {!GOOGLE_API_KEY ? (
+          <div className="loc__mapa loc__mapa--no-key">
+            <p>
+              Configura <code>VITE_GOOGLE_MAPS_API_KEY</code> en <code>.env</code> para ver el mapa.
+            </p>
+          </div>
+        ) : (
+          <div className="loc__mapa">
+            <APIProvider apiKey={GOOGLE_API_KEY}>
+              <Map
+                defaultCenter={CDMX}
+                defaultZoom={13}
+                mapId={GOOGLE_MAP_ID}
+                onClick={handleMapClick}
+                gestureHandling="greedy"
+                style={{ width: '100%', height: '100%' }}
+              >
+                <MapController center={coords} />
+
+                {coords && (
+                  <>
+                    <AdvancedMarker position={coords}>
+                      <div className="loc-marker-user" />
+                    </AdvancedMarker>
+                    <Circle center={coords} radius={800} options={CIRCLE_OPTIONS} />
+                  </>
+                )}
+
+                {huffResult?.competidores.map((c, i) => (
+                  <AdvancedMarker key={i} position={c.coords} title={c.nombre}>
+                    <div className="loc-marker-comp" />
+                  </AdvancedMarker>
+                ))}
+              </Map>
+            </APIProvider>
+          </div>
+        )}
+
         <div className="loc__mapa-leyenda">
           <span className="loc__legend-item loc__legend-item--user">Tu local</span>
           <span className="loc__legend-item loc__legend-item--comp">Competidor</span>
@@ -284,16 +268,14 @@ export default function Localizacion({ onContinuar, negocioExistente }) {
       )}
 
       <div className="loc__footer">
-        <button
-          className="btn-primary"
-          disabled={!listo}
-          onClick={handleContinuar}
-        >
+        <button className="btn-primary" disabled={!listo} onClick={handleContinuar}>
           Continuar →
         </button>
         {!listo && (
           <p className="loc__hint">
-            {!coords ? 'Selecciona una ubicación en el mapa o usa GPS.' : 'Selecciona el tipo de negocio.'}
+            {!coords
+              ? 'Selecciona una ubicación en el mapa o usa GPS.'
+              : 'Selecciona el tipo de negocio.'}
           </p>
         )}
       </div>
