@@ -1,4 +1,12 @@
 import { useState } from 'react';
+import {
+  HashRouter,
+  Routes,
+  Route,
+  Navigate,
+  useNavigate,
+  useLocation,
+} from 'react-router-dom';
 import Localizacion from './components/Localizacion/Localizacion.jsx';
 import StepIntermedio from './components/StepIntermedio/StepIntermedio.jsx';
 import Login from './components/Login/Login.jsx';
@@ -8,77 +16,76 @@ import Comparador from './components/Comparador/Comparador.jsx';
 import './styles/variables.css';
 import './App.css';
 
-// Mapea el paso actual al índice del stepper (1, 2 o 3)
-function pasoAIndice(paso) {
-  if (paso === 'localizacion' || paso === 'intermedio') return 1;
-  if (paso === 'login') return 2;
+const PASOS_STEPPER = ['Localización', 'Registro', 'Selecciona'];
+const RUTAS_STEPPER = ['/localizacion', '/intermedio', '/login', '/selecciona'];
+
+function rutaAIndice(pathname) {
+  if (pathname === '/localizacion' || pathname === '/intermedio') return 1;
+  if (pathname === '/login') return 2;
   return 3;
 }
 
-const PASOS_STEPPER = ['Localización', 'Registro', 'Selecciona'];
+function AppInner() {
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
 
-export default function App() {
-  const [paso, setPaso]               = useState('localizacion');
-  const [usuario, setUsuario]         = useState(null);
+  const [usuario, setUsuario]             = useState(null);
   const [negocioActual, setNegocioActual] = useState(null);
-  const [negocios, setNegocios]       = useState([]);
-  const [modoAgregar, setModoAgregar] = useState(false);
+  const [negocios, setNegocios]           = useState([]);
+  const [modoAgregar, setModoAgregar]     = useState(false);
 
   // ── Localización completada ──
   function handleLocalizacion(data) {
     const neg = { id: Date.now(), ...data };
     setNegocioActual(neg);
-
     if (modoAgregar) {
       setNegocios((prev) => [...prev, neg]);
       setModoAgregar(false);
-      setPaso('comparador');
+      navigate('/comparador');
     } else {
-      setPaso('intermedio');
+      navigate('/intermedio');
     }
   }
 
-  // ── Intermedio: continuar al registro (o a Selecciona si ya hay sesión) ──
+  // ── Intermedio: continuar ──
   function handleIntermedioContinuar() {
-    setPaso(usuario ? 'selecciona' : 'login');
+    navigate(usuario ? '/selecciona' : '/login');
   }
 
-  // ── Intermedio: agregar otro local (guarda el actual y vuelve al inicio) ──
+  // ── Intermedio: agregar otro local ──
   function handleIntermedioAgregarOtro() {
-    if (negocioActual) {
-      setNegocios((prev) => [...prev, negocioActual]);
-    }
+    if (negocioActual) setNegocios((prev) => [...prev, negocioActual]);
     setNegocioActual(null);
-    setPaso('localizacion');
+    navigate('/localizacion');
   }
 
   // ── Login completado ──
   function handleLogin(userData) {
     setUsuario(userData);
-    setPaso('selecciona');
+    navigate('/selecciona');
   }
 
-  // ── Selecciona: ir al chatbot ──
+  // ── Selecciona → Asistente ──
   function handleIrChatbot() {
     if (negocioActual && !negocios.find((n) => n.id === negocioActual.id)) {
       setNegocios((prev) => [...prev, negocioActual]);
     }
-    setPaso('chatbot');
+    navigate('/asistente');
   }
 
-  // ── Selecciona: ir al comparador ──
+  // ── Selecciona → Comparador ──
   function handleIrComparador() {
     if (negocioActual && !negocios.find((n) => n.id === negocioActual.id)) {
       setNegocios((prev) => [...prev, negocioActual]);
     }
-    setPaso('comparador');
+    navigate('/comparador');
   }
 
   // ── Comparador: agregar nuevo local ──
   function handleComparadorAgregar() {
     setModoAgregar(true);
     setNegocioActual(null);
-    setPaso('localizacion');
+    navigate('/localizacion');
   }
 
   // ── Comparador CRUD ──
@@ -90,23 +97,19 @@ export default function App() {
     setNegocios((prev) => prev.map((n) => (n.id === id ? { ...n, ...cambios } : n)));
   }
 
-  const stepActivo = pasoAIndice(paso);
-
-  const showNavbar  = true;
-  const showStepper = paso !== 'chatbot' && paso !== 'comparador';
-  const showFooter  = paso !== 'chatbot';
+  const showStepper = RUTAS_STEPPER.includes(pathname);
+  const showFooter  = pathname !== '/asistente';
+  const stepActivo  = rutaAIndice(pathname);
 
   return (
     <div className="app">
       <header className="navbar">
         <div className="navbar__inner">
           <span className="navbar__logo-text">SecretarIA CDMX</span>
-          {usuario && (
-            <span className="navbar__user">
-              {usuario.nombre.split(' ')[0]}
-            </span>
-          )}
-          {!usuario && <span className="navbar__tagline">Viabilidad de negocios · SEDECO</span>}
+          {usuario
+            ? <span className="navbar__user">{usuario.nombre.split(' ')[0]}</span>
+            : <span className="navbar__tagline">Viabilidad de negocios · SEDECO</span>
+          }
         </div>
       </header>
 
@@ -125,53 +128,78 @@ export default function App() {
           </div>
         )}
 
-        <section className="modulo modulo--animado" key={paso}>
-          {paso === 'localizacion' && (
-            <Localizacion
-              onContinuar={handleLocalizacion}
-              negocioExistente={null}
-            />
-          )}
+        <section className="modulo modulo--animado" key={pathname}>
+          <Routes>
+            <Route path="/" element={<Navigate to="/localizacion" replace />} />
 
-          {paso === 'intermedio' && negocioActual && (
-            <StepIntermedio
-              negocio={negocioActual}
-              onContinuar={handleIntermedioContinuar}
-              onAgregarOtro={handleIntermedioAgregarOtro}
+            <Route
+              path="/localizacion"
+              element={<Localizacion onContinuar={handleLocalizacion} negocioExistente={null} />}
             />
-          )}
 
-          {paso === 'login' && (
-            <Login onLogin={handleLogin} />
-          )}
-
-          {paso === 'selecciona' && (
-            <Selecciona
-              usuario={usuario}
-              negocios={negocios}
-              onChatbot={handleIrChatbot}
-              onComparador={handleIrComparador}
+            <Route
+              path="/intermedio"
+              element={
+                negocioActual
+                  ? <StepIntermedio
+                      negocio={negocioActual}
+                      onContinuar={handleIntermedioContinuar}
+                      onAgregarOtro={handleIntermedioAgregarOtro}
+                    />
+                  : <Navigate to="/localizacion" replace />
+              }
             />
-          )}
 
-          {paso === 'chatbot' && (
-            <Chatbot
-              negocio={negocioActual}
-              usuario={usuario}
-              onVolver={() => setPaso('selecciona')}
+            <Route
+              path="/login"
+              element={<Login onLogin={handleLogin} />}
             />
-          )}
 
-          {paso === 'comparador' && (
-            <Comparador
-              negocios={negocios}
-              usuario={usuario}
-              onAgregar={handleComparadorAgregar}
-              onEliminar={handleEliminar}
-              onEditar={handleEditar}
-              onVolver={() => setPaso('selecciona')}
+            <Route
+              path="/selecciona"
+              element={
+                usuario
+                  ? <Selecciona
+                      usuario={usuario}
+                      negocios={negocios}
+                      onChatbot={handleIrChatbot}
+                      onComparador={handleIrComparador}
+                    />
+                  : <Navigate to="/login" replace />
+              }
             />
-          )}
+
+            <Route
+              path="/asistente"
+              element={
+                usuario
+                  ? <Chatbot
+                      negocio={negocioActual}
+                      usuario={usuario}
+                      onVolver={() => navigate('/selecciona')}
+                    />
+                  : <Navigate to="/login" replace />
+              }
+            />
+
+            <Route
+              path="/comparador"
+              element={
+                usuario
+                  ? <Comparador
+                      negocios={negocios}
+                      usuario={usuario}
+                      onAgregar={handleComparadorAgregar}
+                      onEliminar={handleEliminar}
+                      onEditar={handleEditar}
+                      onVolver={() => navigate('/selecciona')}
+                    />
+                  : <Navigate to="/login" replace />
+              }
+            />
+
+            <Route path="*" element={<Navigate to="/localizacion" replace />} />
+          </Routes>
         </section>
       </main>
 
@@ -187,5 +215,13 @@ export default function App() {
         </footer>
       )}
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <HashRouter>
+      <AppInner />
+    </HashRouter>
   );
 }
