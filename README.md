@@ -1,84 +1,175 @@
-# SecretarIA CDMX — Viabilidad de negocios
+# SecretarIA CDMX
 
-Herramienta web para emprendedores que quieren abrir un establecimiento mercantil en la Ciudad de México. Analiza la **viabilidad comercial y legal** del giro: competidores, nivel socioeconómico, uso de suelo y la ruta completa de trámites de apertura.
-
+> **Herramienta de viabilidad comercial y legal para la apertura de negocios en la Ciudad de México.**
 > Hackathon SEDECO 2026 · Reto 2 · Viabilidad de negocios CDMX
 
-## Problema
+![React](https://img.shields.io/badge/React-19-61DAFB?style=flat&logo=react&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-6-646CFF?style=flat&logo=vite&logoColor=white)
+![Anthropic](https://img.shields.io/badge/Claude-Sonnet_4-D97757?style=flat&logo=anthropic&logoColor=white)
+![License](https://img.shields.io/badge/licencia-MIT-green?style=flat)
 
-Abrir un negocio en la CDMX implica navegar un proceso burocrático complejo que varía según el giro y la ubicación. Un emprendedor sin conocimientos legales puede:
-- Invertir en un local con uso de suelo incompatible
-- Desconocer que su actividad requiere Permiso de Impacto Vecinal o Zonal (no solo un aviso)
-- No saber que hay 52 restaurantes en 800m antes de firmar el contrato
+---
 
-## Usuario objetivo
+## El problema
 
-Emprendedor o inversionista que quiere abrir un establecimiento mercantil en la CDMX y necesita saber si el mercado está saturado, si el uso de suelo es compatible y qué trámites debe realizar en orden.
+Cada año, miles de emprendedores en la CDMX inician un negocio sin saber tres cosas básicas:
 
-## Flujo de uso (4 módulos)
+1. **¿El uso de suelo permite su giro en esa colonia?** — Si no lo verifican antes de firmar el contrato de arrendamiento, pierden dinero.
+2. **¿Necesitan un Aviso, un Permiso Vecinal o un Permiso Zonal?** — La diferencia entre estas tres rutas puede ser de días vs. meses de espera y miles de pesos en multas.
+3. **¿El mercado ya está saturado?** — En la Condesa hay 52 restaurantes en 800m. Nadie le dice eso al emprendedor antes de que invierta.
 
-1. **Diagnóstico** — Selecciona giro, zona en mapa interactivo y tipo de persona. Semáforo: viable / requiere verificación / no compatible.
+**SecretarIA CDMX** resuelve los tres problemas en menos de 2 minutos.
 
-2. **Análisis Comercial** — Score de viabilidad comercial (0-100) basado en: densidad de competidores en 800m (DENUE-INEGI), nivel socioeconómico NSE (AMAI 2023) y movilidad/tráfico (Metro CDMX). 15 colonias × 8 giros.
+---
 
-3. **Ruta de Trámites** — Tres niveles de impacto según la Ley de Establecimientos Mercantiles:
-   - ✅ **Bajo Impacto** — Aviso automático y gratuito (operación inmediata)
-   - ⚠️ **Impacto Vecinal** — Permiso 5 días, silencio = resolución favorable, vigencia 3 años
-   - 🔴 **Impacto Zonal** — Permiso complejo, negativa ficta, vigencia 2 años
-   
-   Incluye documentos requeridos por paso, tabla comparativa de figuras jurídicas (SAS/SA/S.de R.L.), obligaciones del Art. 10 LEM y sanciones en UMA 2026.
+## Solución: 4 módulos en flujo lineal
 
-4. **Resumen con IA** — Resumen personalizado en streaming con Claude (Anthropic). Incluye evaluación comercial, tiempo total estimado del proceso y primer paso urgente.
+```
+Diagnóstico → Análisis Comercial → Ruta de Trámites → Resumen IA
+```
 
-## Cómo correrlo
+### 1 · Diagnóstico de viabilidad
+- Mapa interactivo (Leaflet) con selección de zona y radio de influencia de 800m
+- Categorías de negocio + giros con código SCIAN
+- Verificación de compatibilidad de uso de suelo por colonia
 
-### Prerrequisitos
-- Node.js 18 o superior
-- API key de Anthropic (opcional — funciona con fallback sin ella)
+### 2 · Análisis comercial de la zona *(SpotQ-style)*
+- **Score de viabilidad 0–100** calculado con:
+  - 40 % Nivel socioeconómico (NSE AMAI 2023)
+  - 35 % Saturación de competidores (DENUE-INEGI, radio 800m)
+  - 25 % Movilidad y tráfico peatonal (afluencia Metro CDMX)
+- 3 tarjetas de métricas: competidores en 800m · NSE · metro más cercano con ECOBICI
+- Cobertura: **15 colonias × 8 giros = 120 combinaciones**
 
-### Instalación
+### 3 · Ruta de trámites personalizada
+Basada en la **Ley de Establecimientos Mercantiles CDMX (dic 2025)** y el **RETYS**:
+
+| Nivel de impacto | Trámite | Resolución | Vigencia |
+|---|---|---|---|
+| ✅ Bajo Impacto | Aviso de Funcionamiento SIAPEM | Automática — operación inmediata | Sin revalidación |
+| ⚠️ Impacto Vecinal | Permiso de Impacto Vecinal | 5 días hábiles · Silencio = aprobado | 3 años |
+| 🔴 Impacto Zonal | Permiso de Impacto Zonal | Sin plazo · **Negativa ficta** | 2 años |
+
+**Cada paso incluye:** documentos requeridos · dependencia · tiempo estimado · link oficial.
+
+**Extras:** comparativo de figuras jurídicas (SAS/SA de CV/S. de R.L.), obligaciones continuas del Art. 10 LEM y tabla de sanciones en UMA 2026.
+
+### 4 · Resumen personalizado con IA
+- Generado por **Claude Sonnet 4** (Anthropic) en streaming SSE
+- Incorpora el análisis comercial + la ruta legal personalizada
+- Fallback offline si no hay API key — el demo siempre funciona
+
+---
+
+## Demostración rápida
+
+```
+Entrada:   Restaurante / Fonda · Condesa · Persona física · Sin alcohol
+Resultado: Score 57/100 · Viable con diferenciación
+           52 competidores en 800m (alta saturación)
+           NSE B+ · Metro Patriotismo 480m
+           Ruta: Bajo Impacto → Aviso automático en SIAPEM
+           7 pasos detallados con documentos y links oficiales
+```
+
+```
+Entrada:   Bar / Cantina · Polanco · Persona moral
+Resultado: Score 49/100 · Impacto Zonal
+           10 competidores en 800m (media saturación)
+           NSE A/B · Metro Polanco 310m
+           Ruta: Zonal → Sistema de Seguridad SSC + Permiso complejo
+           Alerta: Negativa ficta · Vigencia 2 años
+```
+
+---
+
+## Stack tecnológico
+
+| Capa | Detalle |
+|---|---|
+| Frontend | React 19 + Vite 6 |
+| Mapa | Leaflet.js + OpenStreetMap |
+| Estilos | CSS puro · Paleta institucional CDMX 2024-2030 |
+| LLM | Anthropic API `claude-sonnet-4-20250514` · streaming SSE · timeout 15s |
+| Datos | JSON mock estructurado (sin BD, sin backend) |
+| Deploy | `npm run build` → carpeta `dist/` lista para cualquier CDN |
+
+---
+
+## Instalación en 3 pasos
 
 ```bash
 git clone https://github.com/QuiqueTamayoMX/secretaria-cdmx.git
 cd secretaria-cdmx
-npm install
+npm install && npm run dev
+```
+
+Abre **http://localhost:5173** — funciona sin API key (modo fallback).
+
+**Con IA generativa:**
+```bash
 cp .env.example .env
-# Edita .env y agrega tu VITE_ANTHROPIC_API_KEY (opcional)
+# Edita .env → VITE_ANTHROPIC_API_KEY=tu_key_aqui
 npm run dev
 ```
 
-Abre [http://localhost:5173](http://localhost:5173)
+> Ver [SETUP.md](./SETUP.md) para instrucciones detalladas y solución de problemas.
 
-## Stack
+---
 
-| Capa | Tecnología |
-|------|-----------|
-| Frontend | React 19 + Vite |
-| Mapa | Leaflet.js |
-| Estilos | CSS puro con variables institucionales CDMX 2024-2030 |
-| LLM | Anthropic API (claude-sonnet-4-20250514), streaming SSE |
-| Datos | JSON mock estructurado (sin base de datos) |
+## Estructura del repositorio
 
-## Datos y fuentes
+```
+secretaria-cdmx/
+├── data/                          # Datos mock para revisión de jueces
+│   ├── mock-tramites.json         # 11 trámites con documentos y notas legales
+│   └── viabilidad-comercial.json  # 15 colonias × 8 giros con NSE, competidores, metro
+├── src/
+│   ├── components/
+│   │   ├── DiagnosticoForm.jsx    # Módulo 1: formulario con mapa Leaflet
+│   │   ├── AnalisisComercial.jsx  # Módulo 2: score + métricas comerciales
+│   │   ├── RutaTramites.jsx       # Módulo 3: pasos ordenados + documentos
+│   │   ├── ResumenIA.jsx          # Módulo 4: streaming con Claude
+│   │   ├── MapaZona.jsx           # Mapa interactivo con radio 800m
+│   │   └── StatusBadge.jsx        # Semáforo viable/verificación/incompatible
+│   ├── services/
+│   │   ├── rutaLogica.js          # Motor de decisión LEM (3 niveles de impacto)
+│   │   ├── analisisComercial.js   # Scoring NSE + saturación + movilidad
+│   │   └── claudeApi.js           # Cliente Anthropic con SSE y fallback
+│   └── data/
+│       ├── mock-tramites.json
+│       └── viabilidad-comercial.json
+├── .env.example
+├── README.md
+└── SETUP.md
+```
 
-- **Trámites**: Ley de Establecimientos Mercantiles CDMX (dic 2025), RETYS, SIAPEM
-- **Uso de suelo**: SEDUVI (mock por colonia)
-- **Competidores**: DENUE-INEGI (orientativo, 15 colonias × 8 giros)
-- **NSE**: AMAI 2023
-- **Transporte**: Afluencia Metro CDMX, datos.cdmx.gob.mx
+---
 
-## Limitaciones
+## Fuentes normativas y de datos
 
-- Datos de uso de suelo y competidores son orientativos (mock basado en fuentes oficiales). Para certeza legal: SEDUVI y DENUE directamente.
-- Cubre 8 giros y 15 colonias en la versión demo.
+| Fuente | Uso |
+|---|---|
+| [Ley de Establecimientos Mercantiles CDMX (dic 2025)](https://prontuario.cdmx.gob.mx/pdf/Ley%20Establecimientos%20Mercantiles%2024122025.pdf) | Clasificación de impacto, obligaciones Art. 10 |
+| [RETYS](https://www.registrodetramitesyservicios.cdmx.gob.mx/) | Trámites, tiempos y dependencias |
+| [SIAPEM](https://siapem.cdmx.gob.mx/) | Árbol lógico Ruta A/B/Zonal |
+| [SEDUVI](http://ciudadmx.cdmx.gob.mx:8080/seduvi/) | Uso de suelo por colonia (mock) |
+| [DENUE-INEGI](https://www.inegi.org.mx/app/mapa/denue/) | Densidad de competidores (orientativo) |
+| [AMAI NSE 2023](https://www.amai.org/) | Nivel socioeconómico por colonia |
+| [Afluencia Metro CDMX](https://datos.cdmx.gob.mx/) | Tráfico peatonal y movilidad |
+| [Anthropic Claude API](https://www.anthropic.com/) | Resumen personalizado con IA |
+
+---
+
+## Limitaciones declaradas
+
+- Datos de uso de suelo, competidores y NSE son **orientativos** (mock basado en fuentes oficiales). Para certeza legal: consultar SEDUVI y DENUE directamente.
+- La versión demo cubre 8 giros y 15 colonias. No es un sistema exhaustivo.
 - Sin autenticación ni persistencia de datos.
-- Esta herramienta es de orientación general. Verifica los requisitos específicos en las dependencias oficiales antes de iniciar tu trámite.
+- Los tiempos de trámite son estimados y pueden variar según la alcaldía.
 
-## Fuentes normativas
+> **Aviso legal:** Esta herramienta es de orientación general. Verifica los requisitos específicos en las dependencias oficiales antes de iniciar tu trámite.
 
-- [Ley de Establecimientos Mercantiles CDMX](https://prontuario.cdmx.gob.mx/pdf/Ley%20Establecimientos%20Mercantiles%2024122025.pdf)
-- [RETYS](https://www.registrodetramitesyservicios.cdmx.gob.mx/)
-- [SIAPEM](https://siapem.cdmx.gob.mx/)
-- [SEDUVI](http://ciudadmx.cdmx.gob.mx:8080/seduvi/)
-- [DENUE-INEGI](https://www.inegi.org.mx/app/mapa/denue/)
-- [datos.cdmx.gob.mx](https://datos.cdmx.gob.mx)
+---
+
+*Desarrollado para el Hackathon SEDECO 2026 · Reto 2 · Ciudad de México*
